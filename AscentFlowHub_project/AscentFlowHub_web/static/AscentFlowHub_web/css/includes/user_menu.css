@@ -1,0 +1,30 @@
+.user-block {
+    position: fixed;
+    top: 15px;
+    right: 15px;
+    background-color: var(--background_color);
+    border-radius: 10px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+}
+
+.user-info p {
+    margin: 0;
+    padding: 15px;
+}
+
+.user-info:hover .login-block:hover {
+    color: var(--font_color);
+    cursor: pointer;
+}
+
+.login-block {
+    padding: 10px;
+}
+
+.user-menu ul {
+    padding: 0 10px 0 10px;
+}
+
+.user-menu li {
+    margin-top: 10px;
+}

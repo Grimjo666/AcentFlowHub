@@ -1,0 +1,42 @@
+:root {
+    --background_color: #242424;
+    --second_bg_color: #3d3d3d;
+    --third_bg_color: #191919;
+    --block_bg_color: #1d1e38;
+    --font_color: #faf2d6;
+    --second_font_color: #e0e0e0;
+    --font_color_activ: none;
+    --accent_color: #f8c537;
+}
+
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: var(--background_color);
+    color: var(--font_color);
+}
+
+header {
+    background-color: var(--third_bg_color);
+}
+
+footer {
+    background-color: var(--third_bg_color);
+}
+
+ul {
+    list-style: none;
+    padding: 0;
+}
+
+a {
+    text-decoration: none;
+    color: var(--font_color);
+}
+
+.hidden {
+    display: none;
+}
+
+.current_tab {
+    background-color: var(--accent_color);
+}

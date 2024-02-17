@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load static %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'AscentFlowHub_web/css/base.css' %}">
+    {% block title %}
+    <title>AscentFlowHub</title>
+    {% endblock %}
+    {% block js_scripts %}{% endblock %}
+    {% block css_style %}{% endblock %}
+</head>
+<body>
+
+    {% block header %}{% endblock %}
+    {% block content %}{% endblock %}
+    {% block footer %}{% endblock %}
+
+</body>
+</html>

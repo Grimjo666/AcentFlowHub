@@ -1,0 +1,34 @@
+{% load static %}
+
+{% block css_style %}
+<link rel="stylesheet" href="{% static 'AscentFlowHub_web/css/includes/user_menu.css' %}">
+{% endblock %}
+
+{% block js_scripts %}
+<script src="{% static 'AscentFlowHub_web/js/includes/user_menu.js' %}"></script>
+{% endblock %}
+
+{% if user.is_authenticated  %}
+    <div class="user-block">
+          <div class="user-info" onclick="toggleUserMenu()">
+            {% if user_name %}
+            <p>{{ user_name|title }}</p>
+            {% else %}
+            <p>{{ user|title }}</p>
+            {% endif %}
+        </div>
+        <div class="user-menu hidden">
+            <ul>
+                <li><a href="">Профиль</a></li>
+                <li><a href="">Настройки</a></li>
+                <li><a href="{% url 'logout_path' %}">Выйти</a></li>
+            </ul>
+        </div>
+    </div>
+{% else %}
+    <div class="user-block">
+        <div class="login-block">
+            <a href="{% url 'login_page_path' %}">Войти</a>
+        </div>
+    </div>
+{% endif %}
