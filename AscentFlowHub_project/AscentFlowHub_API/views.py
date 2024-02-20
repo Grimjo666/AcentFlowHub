@@ -1,3 +1,7 @@
 from django.shortcuts import render
+from djoser.views import UserViewSet
 
-# Create your views here.
+
+class CustomUserViewSet(UserViewSet):
+    def create(self, request, *args, **kwargs):
+        pass

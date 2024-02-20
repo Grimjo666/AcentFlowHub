@@ -40,3 +40,39 @@ a {
 .current_tab {
     background-color: var(--accent_color);
 }
+
+.messages {
+    position: fixed;
+    bottom: 15px;
+    right: 15px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.messages li {
+    margin-bottom: 8px;
+    padding: 10px;
+    border-radius: 5px;
+    font-weight: bold;
+}
+
+.messages .success {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.messages .info {
+    background-color: #808080;
+    color: white;
+}
+
+.messages .warning {
+    background-color: #FFD700;
+    color: #333;
+}
+
+.messages .error {
+    background-color: #FF6347; /* красный */
+    color: white;
+}

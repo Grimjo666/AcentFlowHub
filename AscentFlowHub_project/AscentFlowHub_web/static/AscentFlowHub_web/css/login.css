@@ -3,7 +3,11 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    height: 100vh; /* 100% высоты видимой части экрана */
+    height: 100vh;
+}
+
+.container a {
+    text-decoration: underline;
 }
 
 .form-group {
