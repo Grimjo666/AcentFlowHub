@@ -9,29 +9,40 @@ from django.urls import reverse
 import requests as rqt
 
 from AscentFlowHub_web import forms
+from .mixins import HttpResponseMixin
 
 
 def index_page(request):
     return render(request, 'AscentFlowHub_web/index.html')
 
 
-def logout_handler(request):
+class LogoutView(View, HttpResponseMixin):
     api_logout_endpoint = 'http://127.0.0.1:8000/api/v1/auth/token/logout/'
 
-    user_token = Token.objects.filter(user_id=request.user.id)
+    def get(self, request):
+        try:
+            user_token = request.COOKIES.get('Authorization')
 
-    if user_token.exists():
-        user_token = user_token[0]
-        # Если токен существует, передаём его в пост запрос к апи для удаления
-        response = rqt.post(api_logout_endpoint, headers={'Authorization': f'Token {user_token}'})
+            if not user_token:
+                # Если токен отсутствует
+                raise ValueError('Authorization token not found in cookies')
 
-    logout(request)
-    messages.success(request, 'Вы вышли мз системы')
+            #  Аннулируем токен пользователя
+            response = rqt.post(self.api_logout_endpoint, headers={'Authorization': f'Token {user_token}'})
 
-    return redirect('index_page_path')
+            logout(request)
+            messages.success(request, 'Вы вышли из системы')
+
+            cookie_names = ('Authorization',)  # кортеж с именами кук для удаления
+            return self.delete_cookie_and_redirect(cookie_names, 'index_page_path')
+
+        except Exception as e:
+
+            print(f"Error during logout: {str(e)}")
+            messages.error(request, 'Произошла ошибка при выходе из системы')
 
 
-class LoginPageView(View):
+class LoginPageView(View, HttpResponseMixin):
     template_name = 'AscentFlowHub_web/login.html'
     api_login_endpoint = 'http://127.0.0.1:8000/api/v1/auth/token/login/'
 
@@ -68,12 +79,12 @@ class LoginPageView(View):
             if response.status_code == 200:
 
                 token = response.json().get('auth_token')
-                cookie = {'Authorization': token}
+                cookie_dict = {'Authorization': token}  # словарь с куками
 
                 login(request, user)
                 messages.success(request, 'Выполнен вход')
 
-                return self.set_cookie_and_redirect(cookie_dict=cookie, redirect_path_name='index_page_path')
+                return self.set_cookie_and_redirect(cookie_dict=cookie_dict, redirect_path_name='index_page_path')
 
             else:
                 messages.error(request, 'Произошла ошибка при попытке входа в аккаунт')
@@ -85,24 +96,6 @@ class LoginPageView(View):
             print(str(e))
 
         return self.get(request)
-
-    @staticmethod
-    def set_cookie_and_redirect(cookie_dict: dict, redirect_path_name: str, httponly=True):
-        """
-        redirect_path_name - это имя, указанное в аргументе name, функции path, обычный путь эта функция не принимает
-        """
-        try:
-            url = reverse(redirect_path_name)
-            redirect_response = HttpResponseRedirect(url)
-            for key, value in cookie_dict.items():
-                redirect_response.set_cookie(key=key, value=value, httponly=httponly)
-
-            return redirect_response
-
-        except Exception as e:
-            print(f"Error setting cookie: {str(e)}")
-
-            return HttpResponseServerError("Внутрення ошибка сервера")
 
 
 def registration_page(request):
