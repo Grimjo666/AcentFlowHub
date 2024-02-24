@@ -12,6 +12,10 @@ from AscentFlowHub_web import forms
 from .mixins import HttpResponseMixin
 
 
+def page_not_found(request):
+    return render(request, 'AscentFlowHub_web/page_not_found.html')
+
+
 def index_page(request):
     return render(request, 'AscentFlowHub_web/index.html')
 
@@ -23,23 +27,24 @@ class LogoutView(View, HttpResponseMixin):
         try:
             user_token = request.COOKIES.get('Authorization')
 
-            if not user_token:
-                # Если токен отсутствует
-                raise ValueError('Authorization token not found in cookies')
-
-            #  Аннулируем токен пользователя
-            response = rqt.post(self.api_logout_endpoint, headers={'Authorization': f'Token {user_token}'})
-
             logout(request)
             messages.success(request, 'Вы вышли из системы')
 
-            cookie_names = ('Authorization',)  # кортеж с именами кук для удаления
-            return self.delete_cookie_and_redirect(cookie_names, 'index_page_path')
+            if user_token:
+                #  Аннулируем токен пользователя
+                response = rqt.post(self.api_logout_endpoint, headers={'Authorization': f'Token {user_token}'})
+
+                cookie_names = ('Authorization',)  # кортеж с именами кук для удаления
+                return self.delete_cookie_and_redirect(cookie_names, 'index_page_path')
 
         except Exception as e:
 
             print(f"Error during logout: {str(e)}")
             messages.error(request, 'Произошла ошибка при выходе из системы')
+            return redirect('index_page_path')
+
+        else:
+            return redirect('index_page_path')
 
 
 class LoginPageView(View, HttpResponseMixin):
@@ -132,3 +137,10 @@ def registration_page(request):
     else:
         form = forms.RegistrationForm()
     return render(request, 'AscentFlowHub_web/registration.html', context={'form': form})
+
+
+class MyProgressPageView(View):
+    template_name = 'AscentFlowHub_web/my_progress.html'
+
+    def get(self, request):
+        return render(request, self.template_name)

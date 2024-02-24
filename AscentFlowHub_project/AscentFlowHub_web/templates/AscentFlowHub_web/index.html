@@ -4,16 +4,7 @@
     <link rel="stylesheet" href="{% static 'AscentFlowHub_web/css/index.css' %}">
 {% endblock %}
 {% block header %}
-  <header>
-    <div class="block-header-bar">
-      <ul>
-        <li class="current_tab"><a href="{% url 'index_page_path' %}">Главная</a></li>
-        <li><a href="">Мой прогресс</a></li>
-        <li><a href="">Сообщество</a></li>
-      </ul>
-    </div>
-    {% include 'includes/user_menu.html' %}
-  </header>
+  {% include 'includes/header.html' %}
 {% endblock %}
 {% block content %}
   <div class="main-title-block">

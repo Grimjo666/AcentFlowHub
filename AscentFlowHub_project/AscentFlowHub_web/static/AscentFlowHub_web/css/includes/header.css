@@ -1,0 +1,22 @@
+header {
+    text-align: center;
+    padding: 20px 0 0 0;
+    border-bottom: 2px solid var(--accent_color);
+}
+
+.block-header-bar {
+    margin-bottom: 0;
+}
+
+.block-header-bar ul {
+    list-style: none;
+    display: flex;
+    justify-content: center;
+    margin: 0;
+}
+
+.block-header-bar li {
+    margin-right: 20px;
+    padding: 10px 15px 20px;
+    border-radius: 10px 10px 0 0;
+}

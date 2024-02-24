@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+{% load static %}
+<html>
+<head>
+    <title>Ошибка 404 - Страница не найдена</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #49434a;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            text-align: center;
+            padding-top: 100px;
+        }
+
+        h1 {
+            font-size: 48px;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        p {
+            font-size: 24px;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        a {
+            color: #c974d6;
+            text-decoration: underline;
+        }
+
+        img {
+            max-width: 200px;
+            width: 100%;
+            height: auto;
+            display: block;
+            margin: 0 auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <img src="{% static 'images/404_image.png' %}" alt="Ошибка 404">
+        <h1>Ошибка 404</h1>
+        <p>К сожалению, запрашиваемая страница не найдена.</p>
+        <p>Пожалуйста, проверьте правильность адреса или вернитесь на <a href="/">главную страницу</a>.</p>
+    </div>
+</body>
+</html>
