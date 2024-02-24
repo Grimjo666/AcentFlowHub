@@ -4,3 +4,62 @@
 {% block header %}
   {% include 'includes/header.html' %}
 {% endblock %}
+
+{% block css_style %}
+    <link rel="stylesheet" href="{% static 'AscentFlowHub_web/css/my_progress.css' %}">
+{% endblock %}
+{% block js_scripts %}
+<script src="{% static 'AscentFlowHub_web/js/my_progress.js' %}"></script>
+{% endblock %}
+
+{% block content %}
+  <section class="progress-section">
+    <article class="progress-circle">
+      <div class="inner-circle"></div>
+      <div class="progres-info-wrapper">
+        <span class="percent">50%</span>
+        <span class="text-below">Здоровье</span>
+      </div>
+    </article>
+
+    <article class="progress-circle">
+      <div class="inner-circle"></div>
+      <div class="progres-info-wrapper">
+        <span class="percent">50%</span>
+        <span class="text-below">Отдых</span>
+      </div>
+    </article>
+
+    <article class="progress-circle">
+      <div class="inner-circle"></div>
+      <div class="progres-info-wrapper">
+        <span class="percent">50%</span>
+        <span class="text-below">Финансы</span>
+      </div>
+    </article>
+
+    <article class="progress-circle">
+      <div class="inner-circle"></div>
+      <div class="progres-info-wrapper">
+        <span class="percent">50%</span>
+        <span class="text-below">Отношения</span>
+      </div>
+    </article>
+
+    <article class="progress-circle">
+      <div class="inner-circle"></div>
+      <div class="progres-info-wrapper">
+        <span class="percent">50%</span>
+        <span class="text-below">Карьера</span>
+      </div>
+    </article>
+
+    <article class="progress-circle">
+      <div class="inner-circle"></div>
+      <div class="progres-info-wrapper">
+        <span class="percent">50%</span>
+        <span class="text-below">Личностный рост</span>
+      </div>
+    </article>
+  </section>
+{% endblock %}
