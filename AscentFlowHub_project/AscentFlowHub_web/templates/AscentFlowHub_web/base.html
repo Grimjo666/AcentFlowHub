@@ -13,15 +13,20 @@
     {% block css_style %}{% endblock %}
 </head>
 <body>
+    <div class="overlay {% if not modal_window %} hidden {% endif %}"></div>
 
     {% block header %}{% endblock %}
     {% block content %}{% endblock %}
     {% block footer %}{% endblock %}
 
+    <div class="modal-window {% if not modal_window %} hidden {% endif %}">
+        {% block modal_window %}{% endblock %}
+    </div>
+
     {% if messages %}
       <ul class="messages" id="notifications">
         {% for message in messages %}
-          <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+          <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}></li>
         {% endfor %}
       </ul>
     {% endif %}

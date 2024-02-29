@@ -6,60 +6,58 @@
 {% endblock %}
 
 {% block css_style %}
-    <link rel="stylesheet" href="{% static 'AscentFlowHub_web/css/my_progress.css' %}">
+  <link rel="stylesheet" href="{% static 'AscentFlowHub_web/css/my_progress.css' %}">
 {% endblock %}
+
 {% block js_scripts %}
-<script src="{% static 'AscentFlowHub_web/js/my_progress.js' %}"></script>
+  <script src="{% static 'AscentFlowHub_web/js/my_progress.js' %}"></script>
 {% endblock %}
 
 {% block content %}
+  <h2 class="my-progress-title">Ваши сферы жизни:</h2>
+
   <section class="progress-section">
-    <article class="progress-circle">
-      <div class="inner-circle"></div>
-      <div class="progres-info-wrapper">
-        <span class="percent">50%</span>
-        <span class="text-below">Здоровье</span>
+    <div class="edit-categories-menu">
+      <button class="show-edit-categories-menu">&#8226&#8226&#8226</button>
+      <div class="edit-categories-form-wrapper hidden">
+        <form action="{% url 'my_progress_page_path' %}" method="post" id="edit-categories-form">
+          {% csrf_token %}
+          <input type="hidden" name="form_type" value="edit_categories_form">
+          <button class="edit-categories-button" type="submit" name="button" value="add">Добавить сферу</button>
+          <button class="edit-categories-button" type="submit" name="button" value="edit">Изменить</button>
+          <button class="edit-categories-button" type="button" id="delete-category-btn">Удалить</button>
+        </form>
       </div>
-    </article>
-
-    <article class="progress-circle">
-      <div class="inner-circle"></div>
-      <div class="progres-info-wrapper">
-        <span class="percent">50%</span>
-        <span class="text-below">Отдых</span>
-      </div>
-    </article>
-
-    <article class="progress-circle">
-      <div class="inner-circle"></div>
-      <div class="progres-info-wrapper">
-        <span class="percent">50%</span>
-        <span class="text-below">Финансы</span>
-      </div>
-    </article>
-
-    <article class="progress-circle">
-      <div class="inner-circle"></div>
-      <div class="progres-info-wrapper">
-        <span class="percent">50%</span>
-        <span class="text-below">Отношения</span>
-      </div>
-    </article>
-
-    <article class="progress-circle">
-      <div class="inner-circle"></div>
-      <div class="progres-info-wrapper">
-        <span class="percent">50%</span>
-        <span class="text-below">Карьера</span>
-      </div>
-    </article>
-
-    <article class="progress-circle">
-      <div class="inner-circle"></div>
-      <div class="progres-info-wrapper">
-        <span class="percent">50%</span>
-        <span class="text-below">Личностный рост</span>
-      </div>
-    </article>
+    </div>
+    {% if life_category_list %}
+    {% for category in life_category_list %}
+      <article class="progress-circle">
+        <button class="button-delete-circle hidden" type="submit" form="edit-categories-form"
+                name="delete_category" value="{{ category.id }}">x</button>
+        <div class="progress-circle-wrapper">
+          <div class="inner-circle" style="height: {{ category.percent }}%; background: linear-gradient(to bottom,
+           {{ category.first_color }}, {{ category.second_color }});"></div>
+          <div class="progres-info-wrapper">
+            <span class="percent">{{ category.percent }}</span>
+            <span class="text-below">{{ category.name }}</span>
+          </div>
+        </div>
+      </article>
+    {% endfor %}
+    {% else %}
+      <p>У вас отсутствуют сферы жизни</p>
+    {% endif %}
   </section>
+{% endblock %}
+
+{% block modal_window %}
+  {% if not life_category_list %}
+    <p class="modal-window-text">У ввс отсутствуют сферы жизни, хотите создать их в ручную или выбрать готовый шаблон?</p>
+    <form action="{% url 'my_progress_page_path' %}" method="post" id="create-base-category-form">
+      {% csrf_token %}
+      <input type="hidden" name="form_type" value="create_base_category_form">
+      <button class="button-create-category" type="submit" name="button" value="create">Использовать готовые</button>
+      <button class="button-skip-modal-window" type="submit" name="button" value="slip">Создать в ручную</button>
+    </form>
+  {% endif %}
 {% endblock %}

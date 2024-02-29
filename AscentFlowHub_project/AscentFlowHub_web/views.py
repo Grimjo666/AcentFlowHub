@@ -1,15 +1,16 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.views import View
-from rest_framework.authtoken.models import Token
 from django.contrib import messages
-from django.http import HttpResponseRedirect, HttpResponseServerError
 from django.urls import reverse
+from django.conf import settings
 
 import requests as rqt
 
 from AscentFlowHub_web import forms
 from .mixins import HttpResponseMixin
+from constants.base_life_category_data import BASE_LIFE_CATEGORY_DATA
+from .models import UserTrainingModel
 
 
 def page_not_found(request):
@@ -21,7 +22,7 @@ def index_page(request):
 
 
 class LogoutView(View, HttpResponseMixin):
-    api_logout_endpoint = 'http://127.0.0.1:8000/api/v1/auth/token/logout/'
+    domain = settings.DOMAIN_NAME
 
     def get(self, request):
         try:
@@ -31,8 +32,9 @@ class LogoutView(View, HttpResponseMixin):
             messages.success(request, 'Вы вышли из системы')
 
             if user_token:
+                api_logout_endpoint = self.domain + reverse('logout')
                 #  Аннулируем токен пользователя
-                response = rqt.post(self.api_logout_endpoint, headers={'Authorization': f'Token {user_token}'})
+                response = rqt.post(api_logout_endpoint, headers={'Authorization': user_token})
 
                 cookie_names = ('Authorization',)  # кортеж с именами кук для удаления
                 return self.delete_cookie_and_redirect(cookie_names, 'index_page_path')
@@ -49,7 +51,7 @@ class LogoutView(View, HttpResponseMixin):
 
 class LoginPageView(View, HttpResponseMixin):
     template_name = 'AscentFlowHub_web/login.html'
-    api_login_endpoint = 'http://127.0.0.1:8000/api/v1/auth/token/login/'
+    domain = settings.DOMAIN_NAME
 
     def get(self, request, context=None):
         form = forms.UserAuthenticationForm()
@@ -76,15 +78,16 @@ class LoginPageView(View, HttpResponseMixin):
 
     def handle_login(self, request, user, password):
         try:
+            api_login_endpoint = self.domain + reverse('login')
             response = rqt.post(
-                self.api_login_endpoint,
+                api_login_endpoint,
                 data={'username': user.username, 'password': password}
             )
             # Если создание токена прошло успешно то логиним пользователя
             if response.status_code == 200:
 
                 token = response.json().get('auth_token')
-                cookie_dict = {'Authorization': token}  # словарь с куками
+                cookie_dict = {'Authorization': f'Token {token}'}  # словарь с куками
 
                 login(request, user)
                 messages.success(request, 'Выполнен вход')
@@ -128,6 +131,10 @@ def registration_page(request):
             if response.status_code == 201:
                 messages.success(request, 'Вы успешно зарегистрировались')
                 user = authenticate(request, username=username, password=password)
+
+                # Создаём модель обучения пользователя
+                user_training = UserTrainingModel(user=request.user.id).save()
+
                 return LoginPageView().handle_login(request, user, password)
 
             else:
@@ -141,6 +148,72 @@ def registration_page(request):
 
 class MyProgressPageView(View):
     template_name = 'AscentFlowHub_web/my_progress.html'
+    domain = settings.DOMAIN_NAME
 
     def get(self, request):
-        return render(request, self.template_name)
+        try:
+            user_token = request.COOKIES.get('Authorization')
+            api_data_endpoint = self.domain + reverse('life_category_path-list')
+            response = rqt.get(api_data_endpoint, headers={'Authorization': user_token})
+
+            if response.ok:
+                context = {
+                    'life_category_list': response.json(),
+                    'modal_window': False
+                }
+
+                user_training = UserTrainingModel.objects.filter(user=request.user.id)[0]
+
+                # Получаем инфу о том, создавал ли пользователь сферы жизни
+                already_created_categories = user_training.creating_base_categories
+                if not already_created_categories:
+                    context['modal_window'] = True
+                    user_training.creating_base_categories = True
+                    user_training.save()
+
+                return render(request, self.template_name, context=context)
+
+            raise ValueError(response.json()['detail'])
+
+        except Exception as e:
+            messages.error(request, str(e))
+            return redirect('index_page_path')
+
+    def post(self, request):
+        try:
+            #  Создание базовых сфер жизни
+            if request.POST.get('form_type') == 'create_base_category_form' and request.POST.get('button') == 'create':
+
+                api_data_endpoint = self.domain + reverse('life_category_path-list')
+                self.create_base_life_category_processing(request, api_data_endpoint)
+
+            #  Обработка формы изменения сфер жизни
+            elif request.POST.get('form_type') == 'edit_categories_form':
+
+                delete_category_id = request.POST.get('delete_category')
+                if delete_category_id:
+                    api_data_detail_endpoint = self.domain + reverse('life_category_path-detail',
+                                                                     kwargs={'pk': delete_category_id})
+
+                    self.category_delete_processing(request, api_data_detail_endpoint)
+
+            return redirect('my_progress_page_path')
+
+        except Exception as e:
+            messages.error(request, str(e))
+            return redirect('index_page_path')
+
+    @staticmethod
+    def category_delete_processing(request, api_data_endpoint):
+        user_token = request.COOKIES.get('Authorization')
+        response = rqt.delete(api_data_endpoint, headers={'Authorization': user_token})
+        messages.success(request, 'Сфера жизни удалена')
+
+    @staticmethod
+    def create_base_life_category_processing(request, api_endpoint):
+        user_token = request.COOKIES.get('Authorization')
+
+        # создаём список со словарями для создания сфер жизни пользователя
+        for category_data in BASE_LIFE_CATEGORY_DATA:
+            data = {'user': request.user.id, **category_data}
+            response = rqt.post(api_endpoint, data=data, headers={'Authorization': user_token})

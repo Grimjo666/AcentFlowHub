@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 from transliterate import translit
 
 
-class ProgressCircleModel(models.Model):
+class LifeCategoryModel(models.Model):
     name = models.CharField(max_length=25, null=False)
     latin_name = models.CharField(max_length=25, default='', blank=True)
     percent = models.IntegerField(default=0)
@@ -24,7 +24,7 @@ class ProgressCircleModel(models.Model):
 
     def save(self, *args, **kwargs):
         self.latin_name = self.custom_translit(self.name)
-        super(LifeSphereModel, self).save(*args, **kwargs)
+        super(LifeCategoryModel, self).save(*args, **kwargs)
 
     def __str__(self):
         return f'{self.name} {self.percent}'
