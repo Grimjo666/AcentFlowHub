@@ -8,7 +8,6 @@ from AscentFlowHub_API.views import *
 router = routers.SimpleRouter()
 router.register(r'life-category', LifeCategoryViewSet, basename='life_category_path')
 
-print(router.urls)
 
 urlpatterns = [
     path('admin/', admin.site.urls),

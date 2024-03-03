@@ -35,6 +35,13 @@ a {
     color: var(--font_color);
 }
 
+input {
+    border: none;
+    border-radius: 7px;
+    background-color: var(--second_bg_color);
+    color: var(--font_color);
+}
+
 .hidden {
     display: none;
 }

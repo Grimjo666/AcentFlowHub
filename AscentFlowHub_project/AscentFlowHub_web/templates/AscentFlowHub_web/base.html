@@ -9,6 +9,7 @@
     <title>AscentFlowHub</title>
     {% endblock %}
     <script src="{% static 'AscentFlowHub_web/js/notification_block.js' %}"></script>
+    <script src="{% static 'AscentFlowHub_web/js/modal_window_base.js' %}"></script>
     {% block js_scripts %}{% endblock %}
     {% block css_style %}{% endblock %}
 </head>
@@ -26,7 +27,7 @@
     {% if messages %}
       <ul class="messages" id="notifications">
         {% for message in messages %}
-          <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}></li>
+          <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
         {% endfor %}
       </ul>
     {% endif %}

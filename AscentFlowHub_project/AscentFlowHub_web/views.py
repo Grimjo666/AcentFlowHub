@@ -21,6 +21,10 @@ def index_page(request):
     return render(request, 'AscentFlowHub_web/index.html')
 
 
+def test_page(request):
+    return render(request, 'AscentFlowHub_web/test_page.html')
+
+
 class LogoutView(View, HttpResponseMixin):
     domain = settings.DOMAIN_NAME
 
@@ -159,7 +163,8 @@ class MyProgressPageView(View):
             if response.ok:
                 context = {
                     'life_category_list': response.json(),
-                    'modal_window': False
+                    'modal_window': False,
+                    'life_category_form': forms.LifeCategoryForm
                 }
 
                 user_training = UserTrainingModel.objects.filter(user=request.user.id)[0]
@@ -181,14 +186,16 @@ class MyProgressPageView(View):
 
     def post(self, request):
         try:
-            #  Создание базовых сфер жизни
-            if request.POST.get('form_type') == 'create_base_category_form' and request.POST.get('button') == 'create':
+            form_type = request.POST.get('form_type')
+            api_data_list_endpoint = self.domain + reverse('life_category_path-list')
 
-                api_data_endpoint = self.domain + reverse('life_category_path-list')
-                self.create_base_life_category_processing(request, api_data_endpoint)
+            #  Создание базовых сфер жизни
+            if form_type == 'create_base_category_form' and request.POST.get('button') == 'create':
+
+                self.create_base_life_category_processing(request, api_data_list_endpoint)
 
             #  Обработка формы изменения сфер жизни
-            elif request.POST.get('form_type') == 'edit_categories_form':
+            elif form_type == 'edit_categories_form':
 
                 delete_category_id = request.POST.get('delete_category')
                 if delete_category_id:
@@ -197,6 +204,18 @@ class MyProgressPageView(View):
 
                     self.category_delete_processing(request, api_data_detail_endpoint)
 
+            # Обработка формы добавления новых сфер жизни
+            if form_type == 'create_new_category_form':
+                form = forms.LifeCategoryForm(request.POST)
+                if form.is_valid():
+                    data = {
+                        'name': form.cleaned_data['name'],
+                        'first_color': form.cleaned_data['first_color'],
+                        'second_color': form.cleaned_data['second_color'],
+                        'user': request.user.id
+                    }
+                    self.category_create_processing(request, api_data_list_endpoint, category_data=data)
+
             return redirect('my_progress_page_path')
 
         except Exception as e:
@@ -204,9 +223,15 @@ class MyProgressPageView(View):
             return redirect('index_page_path')
 
     @staticmethod
-    def category_delete_processing(request, api_data_endpoint):
+    def category_create_processing(request, api_endpoint, category_data):
         user_token = request.COOKIES.get('Authorization')
-        response = rqt.delete(api_data_endpoint, headers={'Authorization': user_token})
+        response = rqt.post(api_endpoint, data=category_data, headers={'Authorization': user_token})
+        messages.success(request, 'Сфера жизни добавлена')
+
+    @staticmethod
+    def category_delete_processing(request, api_endpoint):
+        user_token = request.COOKIES.get('Authorization')
+        response = rqt.delete(api_endpoint, headers={'Authorization': user_token})
         messages.success(request, 'Сфера жизни удалена')
 
     @staticmethod

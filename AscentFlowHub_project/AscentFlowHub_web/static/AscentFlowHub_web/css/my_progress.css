@@ -109,4 +109,50 @@
     margin-top: 5px;
 }
 
+#form-container {
+  display: flex;
+}
 
+#new-progress-circle {
+  flex: 1;
+  margin-right: 20px;
+}
+
+#life-category-form {
+  flex: 1;
+}
+
+#colorPalette1,
+#colorPalette2 {
+  margin-top: 10px;
+}
+
+#colorPicker1,
+#colorPicker2 {
+  margin-right: 10px;
+}
+
+#new-progress-circle,
+#life-category-form {
+  padding: 10px;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+}
+
+#create-life-category-btn {
+    position: absolute;
+    bottom: 15px;
+    left: 25px;
+    width: 170px;
+}
+
+#id_name {
+    margin-top: 10px;
+}
+
+#colorPicker1, #colorPicker2 {
+    margin-top: 25px;
+}
+
+#colorPicker1:hover, #colorPicker2:hover {
+    cursor: pointer;
+}
