@@ -1,0 +1,58 @@
+{% extends 'AscentFlowHub_web/base.html' %}
+{% load static %}
+
+{% block header %}
+  {% include 'includes/header.html' %}
+{% endblock %}
+
+{% block css_style %}
+  <link rel="stylesheet" href="{% static 'AscentFlowHub_web/css/sphere_of_life.css' %}">
+{% endblock %}
+
+{% block js_scripts %}
+  <script src="{% static 'AscentFlowHub_web/js/my_progres.js' %}"></script>
+{% endblock %}
+
+
+{% block content %}
+    <div class="progress-scale">
+        <div class="progress-scale-color" style="background: linear-gradient(to left,
+     {{ life_category.first_color }}, {{ life_category.second_color }});
+      height: 100%; width: {{ life_category.percent }}%"></div>
+        <div class="progress-scale-text-wrapper">
+            <span class="progress-scale-title">{{ life_category.name }}</span>
+            <span class="progress-scale-percent">{{ life_category.percent }}%</span>
+        </div>
+    </div>
+    <section class="progress-wrapper">
+        <div class="only-for-line">
+
+        </div>
+
+        <h2 >Цели:</h2>
+        <article class="goal-block">
+            <div class="goal-block-wrapper">
+
+            </div>
+
+        </article>
+        <article class="goal-block">
+            <div class="goal-block-wrapper">
+
+            </div>
+
+        </article>
+        <article class="goal-block">
+            <div class="goal-block-wrapper">
+
+            </div>
+
+        </article>
+        <article class="goal-block">
+            <div class="goal-block-wrapper">
+
+            </div>
+
+        </article>
+    </section>
+{% endblock %}

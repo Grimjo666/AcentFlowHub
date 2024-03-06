@@ -3,33 +3,33 @@
 }
 
 .progress-section {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-around;
-  margin: 5% 25%;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    margin: 5% 25%;
 }
 
 .progress-circle {
-  position: relative;
+    position: relative;
 }
 
 .button-delete-circle {
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
 }
 
 .progress-circle-wrapper {
-  position: relative;
-  width: 200px;
-  height: 200px;
-  border-radius: 50%;
-  border: solid 1px black;
-  background-color: var(--second_bg_color);
-  display: flex;
-  align-items: flex-end;
-  justify-content: flex-start;
-  overflow: hidden;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-  margin: 20px;
+    position: relative;
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    border: solid 1px black;
+    background-color: var(--second_bg_color);
+    display: flex;
+    align-items: flex-end;
+    justify-content: flex-start;
+    overflow: hidden;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    margin: 20px;
 }
 
 .button-delete-circle {
@@ -40,43 +40,43 @@
 }
 
 .inner-circle {
-  position: absolute;
-  bottom: 0;
-  width: 100%;
-  height: 3%;
-  background: linear-gradient(to bottom, #d6b8ff, #e52e71);
-  display: flex;
-  align-items: center;
-  justify-content: center;
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    height: 3%;
+    background: linear-gradient(to bottom, #d6b8ff, #e52e71);
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .progres-info-wrapper {
-  position: absolute;
-  width: 70%;
-  height: 70%;
-  background-color: var(--background_color);
-  border-radius: 50%;
-  border: solid 1px black;
-  top: 15%;
-  left: 15%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-direction: column;
-  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
+    position: absolute;
+    width: 70%;
+    height: 70%;
+    background-color: var(--background_color);
+    border-radius: 50%;
+    border: solid 1px black;
+    top: 15%;
+    left: 15%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
 }
 
 .percent {
-  font-size: 150%;
-  font-weight: bold;
-  align-self: center;
+    font-size: 150%;
+    font-weight: bold;
+    align-self: center;
 }
 
 .text-below {
-  font-size: 100%;
-  font-weight: bold;
-  align-self: center;
-  text-align: center;
+    font-size: 100%;
+    font-weight: bold;
+    align-self: center;
+    text-align: center;
 }
 
 .modal-window-text {
@@ -100,9 +100,9 @@
 }
 
 #edit-categories-form {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
 }
 
 .edit-categories-button {
@@ -110,21 +110,21 @@
 }
 
 #form-container {
-  display: flex;
+    display: flex;
 }
 
 #new-progress-circle {
-  flex: 1;
-  margin-right: 20px;
+    flex: 1;
+    margin-right: 20px;
 }
 
 #life-category-form {
-  flex: 1;
+    flex: 1;
 }
 
 #colorPalette1,
 #colorPalette2 {
-  margin-top: 10px;
+    margin-top: 10px;
 }
 
 #colorPicker1,
@@ -149,8 +149,12 @@
     margin-top: 10px;
 }
 
+#colorPicker1 {
+    margin-left: 4px;
+}
+
 #colorPicker1, #colorPicker2 {
-    margin-top: 25px;
+    margin-top: 20px;
 }
 
 #colorPicker1:hover, #colorPicker2:hover {

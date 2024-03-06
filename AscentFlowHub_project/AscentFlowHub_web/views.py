@@ -9,8 +9,8 @@ import requests as rqt
 
 from AscentFlowHub_web import forms
 from .mixins import HttpResponseMixin
-from constants.base_life_category_data import BASE_LIFE_CATEGORY_DATA
 from .models import UserTrainingModel
+from AscentFlowHub_API.api_client import APILifeCategory, UserApiError
 
 
 def page_not_found(request):
@@ -152,13 +152,11 @@ def registration_page(request):
 
 class MyProgressPageView(View):
     template_name = 'AscentFlowHub_web/my_progress.html'
-    domain = settings.DOMAIN_NAME
 
     def get(self, request):
         try:
-            user_token = request.COOKIES.get('Authorization')
-            api_data_endpoint = self.domain + reverse('life_category_path-list')
-            response = rqt.get(api_data_endpoint, headers={'Authorization': user_token})
+            api_requests = APILifeCategory(request)
+            response = api_requests.get_list_data()
 
             if response.ok:
                 context = {
@@ -186,23 +184,22 @@ class MyProgressPageView(View):
 
     def post(self, request):
         try:
+            api_requests = APILifeCategory(request)
             form_type = request.POST.get('form_type')
-            api_data_list_endpoint = self.domain + reverse('life_category_path-list')
 
             #  Создание базовых сфер жизни
             if form_type == 'create_base_category_form' and request.POST.get('button') == 'create':
 
-                self.create_base_life_category_processing(request, api_data_list_endpoint)
+                api_requests.create_base_life_categories()
+                messages.success(request, 'Созданы базовые сферы жизни')
 
             #  Обработка формы изменения сфер жизни
             elif form_type == 'edit_categories_form':
 
                 delete_category_id = request.POST.get('delete_category')
                 if delete_category_id:
-                    api_data_detail_endpoint = self.domain + reverse('life_category_path-detail',
-                                                                     kwargs={'pk': delete_category_id})
-
-                    self.category_delete_processing(request, api_data_detail_endpoint)
+                    api_requests.delete_data(delete_category_id)
+                    messages.success(request, 'Сфера жизни удалена')
 
             # Обработка формы добавления новых сфер жизни
             if form_type == 'create_new_category_form':
@@ -214,31 +211,32 @@ class MyProgressPageView(View):
                         'second_color': form.cleaned_data['second_color'],
                         'user': request.user.id
                     }
-                    self.category_create_processing(request, api_data_list_endpoint, category_data=data)
+                    api_requests.create_life_category(data=data)
+                    messages.success(request, 'Сфера жизни добавлена')
 
             return redirect('my_progress_page_path')
 
+        except UserApiError as e:
+            messages.warning(request, str(e))
+            return redirect('my_progress_page_path')
+
         except Exception as e:
-            messages.error(request, str(e))
+            messages.error(request, 'Произошла непредвиденная ошибка')
+            print(e)
             return redirect('index_page_path')
 
-    @staticmethod
-    def category_create_processing(request, api_endpoint, category_data):
-        user_token = request.COOKIES.get('Authorization')
-        response = rqt.post(api_endpoint, data=category_data, headers={'Authorization': user_token})
-        messages.success(request, 'Сфера жизни добавлена')
 
-    @staticmethod
-    def category_delete_processing(request, api_endpoint):
-        user_token = request.COOKIES.get('Authorization')
-        response = rqt.delete(api_endpoint, headers={'Authorization': user_token})
-        messages.success(request, 'Сфера жизни удалена')
+class LifeCategoryPageView(View):
+    template_name = 'AscentFlowHub_web/sphere_of_life.html'
 
-    @staticmethod
-    def create_base_life_category_processing(request, api_endpoint):
-        user_token = request.COOKIES.get('Authorization')
+    def get(self, request, category_name):
+        api_requests = APILifeCategory(request)
 
-        # создаём список со словарями для создания сфер жизни пользователя
-        for category_data in BASE_LIFE_CATEGORY_DATA:
-            data = {'user': request.user.id, **category_data}
-            response = rqt.post(api_endpoint, data=data, headers={'Authorization': user_token})
+        life_category_response = api_requests.get_category_by_user_and_name(user_id=request.user.id, category_name=category_name)
+
+
+        context = {
+            'life_category': life_category_response.json()
+        }
+
+        return render(request, self.template_name, context=context)
