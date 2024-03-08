@@ -1,0 +1,35 @@
+{% extends 'AscentFlowHub_web/base.html' %}
+{% load static %}
+
+{% block header %}
+  {% include 'includes/header.html' %}
+{% endblock %}
+
+{% block css_style %}
+  <link rel="stylesheet" href="{% static 'AscentFlowHub_web/css/sphere_of_life.css' %}">
+{% endblock %}
+
+{% block content %}
+     <div class="goal-block">
+        <div class="goal-block-wrapper">
+            <div class="importance-marker marker-color{{goal.weight}}"></div>
+            <h3 class="goal-title">{{ goal.name }}</h3>
+            <button class="goal-show-description-btn">▼</button>
+            <button class="goal-show-edit-form">•••</button>
+
+            <div class="goal-description-block">
+                {% if goal.description %}
+                <p class="goal-description">{{ goal.description }}</p>
+                {% endif %}
+                <button class="add-sub-goal-btn">Добавить промежуточную цель</button>
+
+                {% for sub_goal in goal.sub_goals %}
+                    <div class="sub-goal-block">
+                        <a href="{% url 'sub_goal_page_path' sub_goal.id %}"><h4>---{{ sub_goal.name }}</h4></a>
+                    </div>
+                {% endfor %}
+            </div>
+
+        </div>
+    </div>
+{% endblock %}

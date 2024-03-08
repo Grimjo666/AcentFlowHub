@@ -72,7 +72,7 @@ class BaseAPI:
         return response
 
 
-class APILifeCategory(BaseAPI):
+class LifeCategoryAPI(BaseAPI):
     list_url_pattern = 'life_category_path-list'  # Url шаблон для получения queryset Модели LifeCategoryModel
     detail_url_pattern = 'life_category_path-detail'  # Url шаблон для получения конкретной записи LifeCategoryModel
 
@@ -112,6 +112,28 @@ class APILifeCategory(BaseAPI):
             self.create_life_category(data=data)
 
 
-class APITreeGoals(BaseAPI):
+class TreeGoalsAPI(BaseAPI):
     list_url_pattern = 'tree_goals_path-list'
     detail_url_pattern = 'tree_goals_path-detail'
+
+    def get_goals(self, life_category_id, parent_id=None):
+        """
+        Получаем корневые цели сферы жизни
+        :return: API response
+        """
+        api_endpoint = self._domain + reverse('tree_goals_path-get-all-goals-with-sub-goals',
+                                              kwargs={'life_category_id': life_category_id})
+        if parent_id:
+            api_endpoint += f'?parent_id={parent_id}'
+        response = rqt.get(api_endpoint, headers=self.user_headers)
+        return response
+
+    def get_goal_by_id(self, goal_id, sub_goals=False):
+        url_pattern = self.detail_url_pattern
+        if sub_goals:
+            url_pattern = 'tree_goals_path-get-one-goal-with-sub-goals'
+        api_endpoint = self._domain + reverse(url_pattern, kwargs={'pk': goal_id})
+
+        response = rqt.get(api_endpoint, headers=self.user_headers)
+        return response
+

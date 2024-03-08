@@ -1,14 +1,5 @@
 .progress-wrapper {
-    border-left: solid 1px var(--accent_color);
-    margin: 0 7% 0 3%;
-    border-radius: 5px;
-}
 
-.only-for-line {
-    width: 50%;
-    border-bottom: solid 1px var(--accent_color);
-    border-radius: 5px;
-    margin-top: -1px;
 }
 
 .progress-scale {
@@ -17,7 +8,7 @@
     margin-top: 20px;
     margin-left: auto;
     margin-right: auto;
-    border: solid 2px var(--accent_color);
+    border: solid 2px var(--second_bg_color);
     border-radius: 7px;
     position: relative;
     overflow: hidden;
@@ -39,17 +30,89 @@
     margin-right: 3px;
 }
 
+.add-goal-block {
+    text-align: center;
+    margin: 20px 10px 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.add-goal-btn {
+    font-weight: bold;
+    font-size: 100%;
+    width: 100px;
+}
+
 .goal-block {
-    border-bottom: solid 1px var(--accent_color);
     margin-bottom: 10px;
     border-radius: 5px;
 }
 
 .goal-block-wrapper {
-    width: 96.5%;
-    min-height: 100px;
-    margin-left: 3.5%;
-    background-color: red;
-    border-radius: 7px;
+    position: relative;
+    min-height: 80px;
+    margin: 20px 70px;
+    background-color: var(--third_bg_color);
+    border-radius: 10px;
+    padding: 10px;
 }
 
+.importance-marker {
+    position:absolute;
+    top: 5px;
+    left: 5px;
+    border-radius: 50%;
+    border: solid 1px var(--second_bg_color);
+    width: 12px;
+    height: 12px;
+}
+
+.marker-color1 {
+    background-color: #ed1a41;
+}
+
+.marker-color2 {
+    background-color: #e5af25;
+}
+
+.marker-color3 {
+    background-color: #ccc8c9;
+}
+
+.goal-show-edit-form {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    padding: 5px;
+}
+
+.goal-title {
+    margin-top: 0px;
+    margin-left: 20px;
+}
+
+.goal-show-description-btn {
+    padding: 5px 10px;
+}
+
+.goal-description-block {
+    background-color: var(--background_color);
+    border-radius: 10px;
+    margin-top: 5px;
+    padding: 5px;
+}
+
+.goal-description {
+    padding: 5px;
+    background-color: var(--background_color);
+    margin: 0 0 10px 0;
+}
+
+.add-sub-goal-btn {
+    margin: 10px 10px 0;
+}
+
+.sub-goal-block {
+    margin: 10px;
+}

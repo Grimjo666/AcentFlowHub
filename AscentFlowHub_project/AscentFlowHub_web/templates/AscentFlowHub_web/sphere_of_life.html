@@ -17,42 +17,42 @@
 {% block content %}
     <div class="progress-scale">
         <div class="progress-scale-color" style="background: linear-gradient(to left,
-     {{ life_category.first_color }}, {{ life_category.second_color }});
-      height: 100%; width: {{ life_category.percent }}%"></div>
+     {{ current_life_category.first_color }}, {{ current_life_category.second_color }});
+      height: 100%; width: {{ current_life_category.percent }}%"></div>
         <div class="progress-scale-text-wrapper">
-            <span class="progress-scale-title">{{ life_category.name }}</span>
-            <span class="progress-scale-percent">{{ life_category.percent }}%</span>
+            <span class="progress-scale-title">{{ current_life_category.name }}</span>
+            <span class="progress-scale-percent">{{ current_life_category.percent }}%</span>
         </div>
     </div>
     <section class="progress-wrapper">
-        <div class="only-for-line">
 
+
+        <div class="add-goal-block">
+            <button class="add-goal-btn">+</button>
         </div>
+        {% for goal in goals_list %}
+            <article class="goal-block">
+                <div class="goal-block-wrapper">
+                    <div class="importance-marker marker-color{{goal.weight}}"></div>
+                    <h3 class="goal-title">{{ goal.name }}</h3>
+                    <button class="goal-show-description-btn">▼</button>
+                    <button class="goal-show-edit-form">•••</button>
 
-        <h2 >Цели:</h2>
-        <article class="goal-block">
-            <div class="goal-block-wrapper">
+                    <div class="goal-description-block">
+                        {% if goal.description %}
+                        <p class="goal-description">{{ goal.description }}</p>
+                        {% endif %}
+                        <button class="add-sub-goal-btn">Добавить промежуточную цель</button>
 
-            </div>
+                        {% for sub_goal in goal.sub_goals %}
+                            <div class="sub-goal-block">
+                                <a href="{% url 'sub_goal_page_path' sub_goal.id %}"><h4>---{{ sub_goal.name }}</h4></a>
+                            </div>
+                        {% endfor %}
+                    </div>
 
-        </article>
-        <article class="goal-block">
-            <div class="goal-block-wrapper">
-
-            </div>
-
-        </article>
-        <article class="goal-block">
-            <div class="goal-block-wrapper">
-
-            </div>
-
-        </article>
-        <article class="goal-block">
-            <div class="goal-block-wrapper">
-
-            </div>
-
-        </article>
+                </div>
+            </article>
+        {% endfor %}
     </section>
 {% endblock %}

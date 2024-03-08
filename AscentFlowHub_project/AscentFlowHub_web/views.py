@@ -10,7 +10,7 @@ import requests as rqt
 from AscentFlowHub_web import forms
 from .mixins import HttpResponseMixin
 from .models import UserTrainingModel
-from AscentFlowHub_API.api_client import APILifeCategory, UserApiError
+from AscentFlowHub_API.api_client import LifeCategoryAPI, UserApiError, TreeGoalsAPI
 
 
 def page_not_found(request):
@@ -155,7 +155,7 @@ class MyProgressPageView(View):
 
     def get(self, request):
         try:
-            api_requests = APILifeCategory(request)
+            api_requests = LifeCategoryAPI(request)
             response = api_requests.get_list_data()
 
             if response.ok:
@@ -184,7 +184,7 @@ class MyProgressPageView(View):
 
     def post(self, request):
         try:
-            api_requests = APILifeCategory(request)
+            api_requests = LifeCategoryAPI(request)
             form_type = request.POST.get('form_type')
 
             #  Создание базовых сфер жизни
@@ -226,17 +226,48 @@ class MyProgressPageView(View):
             return redirect('index_page_path')
 
 
-class LifeCategoryPageView(View):
+class SphereOfLifePageView(View):
     template_name = 'AscentFlowHub_web/sphere_of_life.html'
 
     def get(self, request, category_name):
-        api_requests = APILifeCategory(request)
+        api_life_category_requests = LifeCategoryAPI(request)
+        api_tree_goals_requests = TreeGoalsAPI(request)
 
-        life_category_response = api_requests.get_category_by_user_and_name(user_id=request.user.id, category_name=category_name)
+        context = {}
 
+        life_category_response = api_life_category_requests.get_category_by_user_and_name(user_id=request.user.id,
+                                                                                          category_name=category_name)
+        if life_category_response.ok:
+            context['current_life_category'] = life_category_response.json()
 
-        context = {
-            'life_category': life_category_response.json()
-        }
+            # Получаем id текущей категории
+            life_category_id = life_category_response.json().get('id')
+
+            goals_response = api_tree_goals_requests.get_goals(life_category_id=life_category_id)
+            if goals_response.ok:
+                context['goals_list'] = goals_response.json()
+
+            else:
+                messages.error(request, goals_response.text)
+        else:
+            messages.error(request, life_category_response.text)
 
         return render(request, self.template_name, context=context)
+
+
+class SubGoalPageView(View):
+    template_name = 'AscentFlowHub_web/sub_goal_page.html'
+
+    def get(self, request, sub_goal_id):
+        api_tree_goals_requests = TreeGoalsAPI(request)
+        api_response = api_tree_goals_requests.get_goal_by_id(sub_goal_id, sub_goals=True)
+
+        context = {}
+
+        if api_response.ok:
+            context['goal'] = api_response.json()[0]
+        else:
+            messages.error(request, api_response.text)
+
+        return render(request, self.template_name, context=context)
+
