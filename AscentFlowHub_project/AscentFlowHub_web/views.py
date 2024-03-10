@@ -266,6 +266,7 @@ class SubGoalPageView(View):
 
         if api_response.ok:
             context['goal'] = api_response.json()[0]
+            print(api_response.json())
         else:
             messages.error(request, api_response.text)
 

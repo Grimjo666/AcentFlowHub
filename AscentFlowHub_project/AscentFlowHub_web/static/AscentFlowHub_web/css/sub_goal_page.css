@@ -97,13 +97,15 @@
 }
 
 #goal-form {
+    position: absolute;
     display: flex;
-    flex-direction: column;
-    align-items: flex-end;
+    top: 0;
+    right: 0;
+    margin: 5px;
 }
 
 #goal-form button {
-    margin-bottom: 5px;
+    margin-left: 5px;
 }
 
 .goal-title {

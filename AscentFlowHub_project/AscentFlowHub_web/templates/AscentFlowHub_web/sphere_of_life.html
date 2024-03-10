@@ -10,7 +10,7 @@
 {% endblock %}
 
 {% block js_scripts %}
-  <script src="{% static 'AscentFlowHub_web/js/my_progres.js' %}"></script>
+  <script src="{% static 'AscentFlowHub_web/js/sphere_of_life.js' %}"></script>
 {% endblock %}
 
 
@@ -26,10 +26,10 @@
     </div>
     <section class="progress-wrapper">
 
-
         <div class="add-goal-block">
             <button class="add-goal-btn">+</button>
         </div>
+
         {% for goal in goals_list %}
             <article class="goal-block">
                 <div class="goal-block-wrapper">
@@ -38,7 +38,7 @@
                     <button class="goal-show-description-btn">▼</button>
                     <button class="goal-show-edit-form">•••</button>
 
-                    <div class="goal-description-block">
+                    <div class="goal-description-block hidden">
                         {% if goal.description %}
                         <p class="goal-description">{{ goal.description }}</p>
                         {% endif %}
@@ -46,13 +46,35 @@
 
                         {% for sub_goal in goal.sub_goals %}
                             <div class="sub-goal-block">
-                                <a href="{% url 'sub_goal_page_path' sub_goal.id %}"><h4>---{{ sub_goal.name }}</h4></a>
+                                <h4>
+                                    <div class="checkbox-container">
+                                        <input type="checkbox" id="goal-checkbox-{{ sub_goal.id }}" name="checkbox" value="{{ sub_goal.id }}" form="">
+                                        <label for="goal-checkbox-{{ sub_goal.id }}"></label>
+                                    </div>
+                                    <a href="{% url 'sub_goal_page_path' sub_goal.id %}">— {{ sub_goal.name }}</a>
+                                </h4>
                             </div>
                         {% endfor %}
                     </div>
-
+                    <div class="goal-form-wrapper hidden">
+                        <form method="post" action="" id="goal-form">
+                            {% csrf_token %}
+                            <button title="В архив" class="done-goal-btn" name="button" value="done">Выполнено</button>
+                            <button title="В архив" class="edit-goal-btn" name="button" value="edit">Изменить</button>
+                            <button title="Удалить" class="delete-goal-btn" name="button" value="delete">Удалить</button>
+                        </form>
+                    </div>
                 </div>
             </article>
         {% endfor %}
     </section>
+    <div class="checkbox-sub-goal-form-wrapper hidden">
+        <form method="post" action="" id="checkbox-sub-goal-form">
+            {% csrf_token %}
+            <button title="В архив" class="done-sub-goal-btn" name="button" value="done">Выполнено</button>
+            <button class="edit-sub-goal-btn" name="button" value="done">Изменить</button>
+            <button title="Удалить" class="delete-sub-goal-btn" name="button" value="delete">Удалить</button>
+            <input type="hidden" name="form_type" value="checkbox_form">
+        </form>
+    </div>
 {% endblock %}

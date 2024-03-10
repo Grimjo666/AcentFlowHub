@@ -42,6 +42,41 @@ input {
     color: var(--font_color);
 }
 
+.checkbox-container {
+    display: inline-block;
+}
+
+/* Скрытие оригинального чекбокса */
+.checkbox-container input[type="checkbox"] {
+    display: none;
+}
+
+/* Стилизация лейбла (визуального элемента) */
+.checkbox-container label {
+
+    position: relative;
+    padding-left: 20px;
+    cursor: pointer;
+}
+
+/* Создание визуального элемента */
+.checkbox-container label::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    width: 15px;
+    height: 15px;
+    border: 2px solid #000;
+    border-radius: 4px;
+    background-color: var(--second_bg_color);
+}
+
+/* Стилизация визуального элемента при выборе */
+.checkbox-container input[type="checkbox"]:checked + label::before {
+    border: 2px solid var(--second_bg_color);
+    background-color: var(--accent_color);
+}
+
 .hidden {
     display: none;
 }
