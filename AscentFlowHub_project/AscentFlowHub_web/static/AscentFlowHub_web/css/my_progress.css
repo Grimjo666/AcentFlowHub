@@ -1,0 +1,162 @@
+.my-progress-title {
+    text-align: center;
+}
+
+.progress-section {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    margin: 5% 25%;
+}
+
+.progress-circle {
+    position: relative;
+}
+
+.button-delete-circle {
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+.progress-circle-wrapper {
+    position: relative;
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    border: solid 1px black;
+    background-color: var(--second_bg_color);
+    display: flex;
+    align-items: flex-end;
+    justify-content: flex-start;
+    overflow: hidden;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    margin: 20px;
+}
+
+.button-delete-circle {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+
+}
+
+.inner-circle {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    height: 3%;
+    background: linear-gradient(to bottom, #d6b8ff, #e52e71);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.progres-info-wrapper {
+    position: absolute;
+    width: 70%;
+    height: 70%;
+    background-color: var(--background_color);
+    border-radius: 50%;
+    border: solid 1px black;
+    top: 15%;
+    left: 15%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+.percent {
+    font-size: 150%;
+    font-weight: bold;
+    align-self: center;
+}
+
+.text-below {
+    font-size: 100%;
+    font-weight: bold;
+    align-self: center;
+    text-align: center;
+}
+
+.modal-window-text {
+    margin: 35px 10px;
+}
+
+#create-base-category-form {
+    margin: 10px;
+}
+
+.edit-categories-menu {
+    position: absolute;
+    top: 20%;
+    right: 19%;
+    margin: 10px;
+    padding: 10px;
+    z-index: 2;
+    display: flex;
+    align-items: flex-end;
+    flex-direction: column;
+}
+
+#edit-categories-form {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+.edit-categories-button {
+    margin-top: 5px;
+}
+
+#form-container {
+    display: flex;
+}
+
+#new-progress-circle {
+    flex: 1;
+    margin-right: 20px;
+}
+
+#life-category-form {
+    flex: 1;
+}
+
+#colorPalette1,
+#colorPalette2 {
+    margin-top: 10px;
+}
+
+#colorPicker1,
+#colorPicker2 {
+  margin-right: 10px;
+}
+
+#new-progress-circle,
+#life-category-form {
+  padding: 10px;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+}
+
+#create-life-category-btn {
+    position: absolute;
+    bottom: 15px;
+    left: 25px;
+    width: 170px;
+}
+
+#id_name {
+    margin-top: 10px;
+}
+
+#colorPicker1 {
+    margin-left: 4px;
+}
+
+#colorPicker1, #colorPicker2 {
+    margin-top: 20px;
+}
+
+#colorPicker1:hover, #colorPicker2:hover {
+    cursor: pointer;
+}

@@ -1,0 +1,165 @@
+.progress-wrapper {
+
+}
+
+.progress-scale {
+    height: 25px;
+    width: 30%;
+    margin-top: 20px;
+    margin-left: auto;
+    margin-right: auto;
+    border: solid 2px var(--second_bg_color);
+    border-radius: 7px;
+    position: relative;
+    overflow: hidden;
+}
+
+.progress-scale-text-wrapper {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    padding: 2px;
+    border-radius: 4px;
+    background-color: var(--background_color);
+    font-weight: bold;
+}
+
+.progress-scale-title {
+    margin-right: 3px;
+}
+
+.add-goal-block {
+    text-align: center;
+    margin: 20px 10px 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.add-goal-btn {
+    font-weight: bold;
+    font-size: 100%;
+    width: 100px;
+}
+
+.goal-block {
+    margin-bottom: 10px;
+    border-radius: 5px;
+}
+
+.goal-block-wrapper {
+    position: relative;
+    min-height: 60px;
+    margin: 20px 70px;
+    background-color: var(--third_bg_color);
+    border-radius: 10px;
+    padding: 10px;
+}
+
+.importance-marker {
+    position:absolute;
+    top: 5px;
+    left: 5px;
+    border-radius: 50%;
+    border: solid 1px var(--second_bg_color);
+    width: 12px;
+    height: 12px;
+}
+
+.marker-color1 {
+    background-color: #ed1a41;
+}
+
+.marker-color2 {
+    background-color: #e5af25;
+}
+
+.marker-color3 {
+    background-color: #ccc8c9;
+}
+
+.goal-show-edit-form {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    padding: 5px;
+}
+
+.goal-form-wrapper {
+    position: absolute;
+    top: 0;
+    right: 0;
+    margin-top: 40px;
+    margin-right: 5px;
+    z-index: 3;
+}
+
+#goal-form {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+#goal-form button {
+    margin-bottom: 5px;
+}
+
+.goal-title {
+    margin-top: 0px;
+    margin-left: 20px;
+}
+
+.goal-show-description-btn {
+    padding: 5px 10px;
+}
+
+.goal-description-block {
+    background-color: var(--background_color);
+    border-radius: 10px;
+    margin-top: 5px;
+    padding: 5px;
+}
+
+.goal-description {
+    padding: 5px;
+    background-color: var(--background_color);
+    margin: 0 0 10px 0;
+}
+
+.add-sub-goal-btn {
+    margin: 10px 10px 0;
+}
+
+.sub-goal-block {
+    margin: 10px;
+}
+
+.checkbox-sub-goal-form-wrapper {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translate(-50%);
+    margin-bottom: 20px;
+    background-color: var(--third_bg_color);
+    padding: 10px;
+    border-radius: 7px;
+    border: solid 2px var(--accent_color);
+}
+
+textarea {
+    height: 80px;
+}
+
+#create-new-goal-form {
+    margin-bottom: 10px;
+}
+
+#create-new-goal-form input[type="text"] {
+    width: 400px;
+}
+
+#create-new-goal-form input, #create-new-goal-form textarea {
+    margin-top: 10px;
+}
