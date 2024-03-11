@@ -77,8 +77,19 @@ input {
     background-color: var(--accent_color);
 }
 
+select, textarea{
+    background-color: var(--second_bg_color);
+    color: var(--font_color);
+    border-radius: 5px;
+    padding: 3px;
+}
+
 .hidden {
     display: none;
+}
+
+.strikethrough_text {
+    text-decoration: line-through;
 }
 
 .current_tab {

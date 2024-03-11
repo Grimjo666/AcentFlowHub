@@ -2,7 +2,7 @@ from django import forms
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.models import User
 
-from AscentFlowHub_API.models import LifeCategoryModel
+from AscentFlowHub_API import models as api_models
 
 
 class RegistrationForm(forms.Form):
@@ -19,7 +19,7 @@ class UserAuthenticationForm(AuthenticationForm):
 
 class LifeCategoryForm(forms.ModelForm):
     class Meta:
-        model = LifeCategoryModel
+        model = api_models.LifeCategoryModel
         fields = ['name', 'first_color', 'second_color']
         labels = {'name': 'Название сферы'}
         widgets = {
@@ -32,3 +32,17 @@ class LifeCategoryForm(forms.ModelForm):
         # Установка значений по умолчанию
         self.fields['first_color'].initial = '#e52e71'
         self.fields['second_color'].initial = '#d6b8ff'
+
+
+class TreeGoalsForm(forms.ModelForm):
+    class Meta:
+        model = api_models.TreeGoalsModel
+        fields = ['name', 'weight', 'description']
+        labels = {
+            'name': 'Название цели',
+            'weight': 'Значимость цели',
+            'description': 'Описание (не обязательно)'
+        }
+        widgets = {
+            'description': forms.Textarea
+        }

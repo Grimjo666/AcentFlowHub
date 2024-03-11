@@ -27,14 +27,14 @@
     <section class="progress-wrapper">
 
         <div class="add-goal-block">
-            <button class="add-goal-btn">+</button>
+            <button title="Добавить цель" class="add-goal-btn">+</button>
         </div>
 
         {% for goal in goals_list %}
             <article class="goal-block">
                 <div class="goal-block-wrapper">
                     <div class="importance-marker marker-color{{goal.weight}}"></div>
-                    <h3 class="goal-title">{{ goal.name }}</h3>
+                    <h3 class="goal-title{% if goal.completed %} strikethrough_text {% endif %}">{{ goal.name }}</h3>
                     <button class="goal-show-description-btn">▼</button>
                     <button class="goal-show-edit-form">•••</button>
 
@@ -42,7 +42,7 @@
                         {% if goal.description %}
                         <p class="goal-description">{{ goal.description }}</p>
                         {% endif %}
-                        <button class="add-sub-goal-btn">Добавить промежуточную цель</button>
+                        <button class="add-sub-goal-btn" data-goal-id="{{ goal.id }}">Добавить промежуточную цель</button>
 
                         {% for sub_goal in goal.sub_goals %}
                             <div class="sub-goal-block">
@@ -59,9 +59,11 @@
                     <div class="goal-form-wrapper hidden">
                         <form method="post" action="" id="goal-form">
                             {% csrf_token %}
-                            <button title="В архив" class="done-goal-btn" name="button" value="done">Выполнено</button>
-                            <button title="В архив" class="edit-goal-btn" name="button" value="edit">Изменить</button>
-                            <button title="Удалить" class="delete-goal-btn" name="button" value="delete">Удалить</button>
+                            <button class="done-goal-btn" name="button" value="done">Выполнено</button>
+                            <button class="edit-goal-btn" name="button" value="edit">Изменить</button>
+                            <button class="delete-goal-btn" name="button" value="delete">Удалить</button>
+                            <input type="hidden" name="form_type" value="goal_management_form">
+                            <input type="hidden" name="goal_id" value="{{ goal.id }}">
                         </form>
                     </div>
                 </div>
@@ -72,9 +74,19 @@
         <form method="post" action="" id="checkbox-sub-goal-form">
             {% csrf_token %}
             <button title="В архив" class="done-sub-goal-btn" name="button" value="done">Выполнено</button>
-            <button class="edit-sub-goal-btn" name="button" value="done">Изменить</button>
+            <button class="edit-sub-goal-btn" name="button" value="edit">Изменить</button>
             <button title="Удалить" class="delete-sub-goal-btn" name="button" value="delete">Удалить</button>
             <input type="hidden" name="form_type" value="checkbox_form">
         </form>
     </div>
+{% endblock %}
+
+{% block modal_window %}
+    <form action="" method="post" id="create-new-goal-form">
+        {% csrf_token %}
+        {{ new_goal_form.as_p }}
+        <input type="hidden" name="form_type" value="new_goal_from">
+        <input type="hidden" name="parent_id" value="" id="parent_id_input">
+        <button type="submit">Добавить</button>
+    </form>
 {% endblock %}

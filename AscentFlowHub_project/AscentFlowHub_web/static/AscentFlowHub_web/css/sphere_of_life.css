@@ -147,3 +147,19 @@
     border-radius: 7px;
     border: solid 2px var(--accent_color);
 }
+
+textarea {
+    height: 80px;
+}
+
+#create-new-goal-form {
+    margin-bottom: 10px;
+}
+
+#create-new-goal-form input[type="text"] {
+    width: 400px;
+}
+
+#create-new-goal-form input, #create-new-goal-form textarea {
+    margin-top: 10px;
+}

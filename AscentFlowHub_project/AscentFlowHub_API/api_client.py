@@ -12,6 +12,15 @@ class UserApiError(Exception):
         super().__init__(self.message)
 
 
+class ServerApiError(Exception):
+    """
+    Класс ошибок для возбуждения исключений, предназначенных для разработчиков
+    """
+    def __init__(self, message):
+        self.message = message
+        super().__init__(self.message)
+
+
 class BaseAPI:
     """
     Базовый класс для взаимодействия с API. Предоставляет общие методы для CRUD операций.
@@ -50,6 +59,11 @@ class BaseAPI:
             response = rqt.get(api_endpoint, headers=self.user_headers)
         else:
             response = rqt.get(self._api_data_list_endpoint, headers=self.user_headers)
+
+        if not response.ok:
+            response_message = response.json().get('detail')
+            raise ServerApiError(f'класс: {self} Ошибка при получении данных: {response_message}')
+
         return response
 
     def create_data(self, data):
@@ -59,6 +73,27 @@ class BaseAPI:
         :return: API response
         """
         response = rqt.post(self._api_data_list_endpoint, headers=self.user_headers, data=data)
+
+        if not response.ok:
+            response_message = response.json().get('detail')
+            raise ServerApiError(f'класс: {self} Ошибка при сохранении данных: {response_message}')
+
+        return response
+
+    def partially_update(self, pk, data):
+        """
+        Частичное обновление данных с помощью метода patch
+        :param pk: id изменяемой записи
+        :param data: словарь с данными
+        :return: API response
+        """
+        api_endpoint = self.get_detail_endpoint(pk)
+        response = rqt.patch(api_endpoint, data=data, headers=self.user_headers)
+
+        if not response.ok:
+            response_message = response.json().get('detail')
+            raise ServerApiError(f'класс: {self} Ошибка при обновлении данных: {response_message}')
+
         return response
 
     def delete_data(self, pk):
@@ -69,6 +104,11 @@ class BaseAPI:
         """
         delete_endpoint = self.get_detail_endpoint(pk)
         response = rqt.delete(delete_endpoint, headers=self.user_headers)
+
+        if not response.ok:
+            response_message = response.json().get('detail')
+            raise ServerApiError(f'класс: {self} Ошибка при удалении данных: {response_message}')
+
         return response
 
 
@@ -118,7 +158,9 @@ class TreeGoalsAPI(BaseAPI):
 
     def get_goals(self, life_category_id, parent_id=None):
         """
-        Получаем корневые цели сферы жизни
+        Получаем цели из модели TreeGoalsModel
+        :param life_category_id: id родительской категории сферы жизни
+        :param parent_id: если передаётся, то будут возвращены подцели, передаваемой parent_id (TreeGoalsModel.parent)
         :return: API response
         """
         api_endpoint = self._domain + reverse('tree_goals_path-get-all-goals-with-sub-goals',

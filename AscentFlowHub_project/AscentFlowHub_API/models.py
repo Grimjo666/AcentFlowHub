@@ -27,13 +27,14 @@ class TreeGoalsModel(models.Model):
         (3, 'Низкое')
     ]
 
-    name = models.CharField(max_length=40, null=False)
-    slug_name = models.CharField(max_length=40, default='', blank=True)
+    name = models.CharField(max_length=45, null=False)
+    slug_name = models.CharField(max_length=50, default='', blank=True)
     life_category = models.ManyToManyField(LifeCategoryModel)
     weight = models.IntegerField(choices=WEIGHT_CHOICES, default=1)
     parent = models.ForeignKey('self', null=True, blank=True, on_delete=models.CASCADE, related_name='children')
     description = models.CharField(max_length=250, blank=True, null=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
+    completed = models.BooleanField(default=False)
 
     def save(self, *args, **kwargs):
         slug_name = slugify(self.name)

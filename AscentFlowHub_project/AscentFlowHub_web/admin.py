@@ -1,8 +1,8 @@
 from django.contrib import admin
 
-from AscentFlowHub_API import models
-from AscentFlowHub_web.models import UserTrainingModel
+from AscentFlowHub_API import models as api_models
+from AscentFlowHub_web import models as web_models
 
-admin.site.register(models.LifeCategoryModel)
-admin.site.register(UserTrainingModel)
-admin.site.register(models.TreeGoalsModel)
+admin.site.register(api_models.LifeCategoryModel)
+admin.site.register(web_models.UserTrainingModel)
+admin.site.register(api_models.TreeGoalsModel)

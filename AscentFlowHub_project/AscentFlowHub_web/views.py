@@ -233,7 +233,11 @@ class SphereOfLifePageView(View):
         api_life_category_requests = LifeCategoryAPI(request)
         api_tree_goals_requests = TreeGoalsAPI(request)
 
-        context = {}
+        new_goal_form = forms.TreeGoalsForm()
+
+        context = {
+            'new_goal_form': new_goal_form,
+        }
 
         life_category_response = api_life_category_requests.get_category_by_user_and_name(user_id=request.user.id,
                                                                                           category_name=category_name)
@@ -253,6 +257,99 @@ class SphereOfLifePageView(View):
             messages.error(request, life_category_response.text)
 
         return render(request, self.template_name, context=context)
+
+    def post(self, request, category_name):
+        form_type = request.POST.get('form_type')
+        try:
+            # Обработка формы добавления новой цели
+            if form_type == 'new_goal_from':
+                goal_form = forms.TreeGoalsForm(request.POST)
+
+                if goal_form.is_valid():
+                    # Получаем parent_id из скрытого поля формы
+                    parent_id = request.POST.get('parent_id')
+
+                    # Если parent_id пустое, то мы добавляем основную цель, если нет, то подцель
+                    if parent_id == '':
+                        parent_id = None
+
+                    self.create_new_goal_process(request, goal_form, category_name, parent_id)
+                    messages.success(request, 'Цель добавлена')
+
+            # Обработка формы выполнения\изменения\удаления цели
+            elif form_type == 'goal_management_form':
+                # Узнаём на какую кнопку нажал пользователь
+                button = request.POST.get('button')
+
+                if button == 'done':
+                    self.done_goal_process(request)
+                    messages.success(request, 'Цель выполнена')
+
+                elif button == 'edit':
+                    pass
+
+                elif button == 'delete':
+                    self.delete_goal_process(request)
+                    messages.success(request, 'Цель удалена')
+
+                else:
+                    messages.warning(request, 'Не зарегистрированная кнопка')
+
+        except Exception as e:
+            messages.error(request, e)
+
+        return redirect('sphere_of_life_page_path', category_name=category_name)
+
+    @staticmethod
+    def create_new_goal_process(request, goal_form, category_name, parent_id=None):
+        name = goal_form.cleaned_data['name']
+        weight = goal_form.cleaned_data['weight']
+        description = goal_form.cleaned_data['description']
+
+        api_life_category_requests = LifeCategoryAPI(request)
+        api_tree_goals_requests = TreeGoalsAPI(request)
+
+        # Получаем текущую категорию
+        life_category_response = api_life_category_requests.get_category_by_user_and_name(
+            user_id=request.user.id, category_name=category_name
+        )
+
+        if not life_category_response.ok:
+            raise UserApiError('Ошибка во время создания цели')
+
+        life_category_id = life_category_response.json().get('id')
+
+        tree_goal_response = api_tree_goals_requests.create_data({
+            'name': name,
+            'weight': weight,
+            'description': description,
+            'life_category': life_category_id,
+            'user': request.user.id,
+            'parent': parent_id
+        })
+        return tree_goal_response
+
+    @staticmethod
+    def delete_goal_process(request):
+        goal_id = request.POST.get('goal_id')
+
+        if goal_id:
+            api_tree_goals_requests = TreeGoalsAPI(request)
+            api_response = api_tree_goals_requests.delete_data(goal_id)
+            return api_response
+        else:
+            raise Exception('Отсутствует goal_id')
+
+    @staticmethod
+    def done_goal_process(request):
+        goal_id = request.POST.get('goal_id')
+
+        if goal_id:
+            api_tree_goals_requests = TreeGoalsAPI(request)
+            api_response = api_tree_goals_requests.partially_update(goal_id, data={'completed': True})
+            return api_response
+        else:
+            raise Exception('Отсутствует goal_id')
 
 
 class SubGoalPageView(View):
