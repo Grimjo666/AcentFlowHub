@@ -249,7 +249,13 @@ class SphereOfLifePageView(View):
 
             goals_response = api_tree_goals_requests.get_goals(life_category_id=life_category_id)
             if goals_response.ok:
-                context['goals_list'] = goals_response.json()
+                # Фильтруем разбиваем данные на два массива (активные цели и завершённые)
+                active_goals_list = filter(lambda goal: goal['completed'] is False, goals_response.json())
+                completed_goals_list = filter(lambda goal: goal['completed'] is True, goals_response.json())
+
+                context['active_goals_list'] = active_goals_list
+                context['completed_goals_list'] = completed_goals_list
+                print(goals_response.json())
 
             else:
                 messages.error(request, goals_response.text)
@@ -260,6 +266,8 @@ class SphereOfLifePageView(View):
 
     def post(self, request, category_name):
         form_type = request.POST.get('form_type')
+        # Узнаём на какую кнопку нажал пользователь
+        button = request.POST.get('button')
         try:
             # Обработка формы добавления новой цели
             if form_type == 'new_goal_from':
@@ -277,16 +285,18 @@ class SphereOfLifePageView(View):
                     messages.success(request, 'Цель добавлена')
 
             # Обработка формы выполнения\изменения\удаления цели
-            elif form_type == 'goal_management_form':
-                # Узнаём на какую кнопку нажал пользователь
-                button = request.POST.get('button')
+            elif form_type == 'manage_goal_form':
 
                 if button == 'done':
-                    self.done_goal_process(request)
+                    self.switch_goal_process(request)
                     messages.success(request, 'Цель выполнена')
 
                 elif button == 'edit':
                     pass
+
+                elif button == 'make_active':
+                    self.switch_goal_process(request, completed=False)
+                    messages.success(request, 'Цель снова активна')
 
                 elif button == 'delete':
                     self.delete_goal_process(request)
@@ -341,12 +351,18 @@ class SphereOfLifePageView(View):
             raise Exception('Отсутствует goal_id')
 
     @staticmethod
-    def done_goal_process(request):
+    def switch_goal_process(request, completed=True):
+        """
+        Обработчик переключения цели (выполнена / активна)
+        :param request:
+        :param completed: по умолчанию True (делает цель завершённой)
+        :return: API response
+        """
         goal_id = request.POST.get('goal_id')
 
         if goal_id:
             api_tree_goals_requests = TreeGoalsAPI(request)
-            api_response = api_tree_goals_requests.partially_update(goal_id, data={'completed': True})
+            api_response = api_tree_goals_requests.partially_update(goal_id, data={'completed': completed})
             return api_response
         else:
             raise Exception('Отсутствует goal_id')

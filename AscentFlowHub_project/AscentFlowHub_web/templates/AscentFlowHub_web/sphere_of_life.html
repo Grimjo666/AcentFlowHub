@@ -24,17 +24,18 @@
             <span class="progress-scale-percent">{{ current_life_category.percent }}%</span>
         </div>
     </div>
-    <section class="progress-wrapper">
+    <section class="active-goal-wrapper">
 
         <div class="add-goal-block">
             <button title="Добавить цель" class="add-goal-btn">+</button>
         </div>
 
-        {% for goal in goals_list %}
+        <h2>Активные цели:</h2>
+        {% for goal in active_goals_list %}
             <article class="goal-block">
                 <div class="goal-block-wrapper">
                     <div class="importance-marker marker-color{{goal.weight}}"></div>
-                    <h3 class="goal-title{% if goal.completed %} strikethrough_text {% endif %}">{{ goal.name }}</h3>
+                    <h3 class="goal-title">{{ goal.name }}</h3>
                     <button class="goal-show-description-btn">▼</button>
                     <button class="goal-show-edit-form">•••</button>
 
@@ -57,12 +58,12 @@
                         {% endfor %}
                     </div>
                     <div class="goal-form-wrapper hidden">
-                        <form method="post" action="" id="goal-form">
+                        <form method="post" action="" id="manage-active-goal-form">
                             {% csrf_token %}
                             <button class="done-goal-btn" name="button" value="done">Выполнено</button>
                             <button class="edit-goal-btn" name="button" value="edit">Изменить</button>
                             <button class="delete-goal-btn" name="button" value="delete">Удалить</button>
-                            <input type="hidden" name="form_type" value="goal_management_form">
+                            <input type="hidden" name="form_type" value="manage_goal_form">
                             <input type="hidden" name="goal_id" value="{{ goal.id }}">
                         </form>
                     </div>
@@ -70,6 +71,42 @@
             </article>
         {% endfor %}
     </section>
+    <section class="completed-goal-wrapper">
+        <div class="goal-separator-line"></div>
+        <h2>Выполненные цели:</h2>
+        {% for cmt_goal in completed_goals_list %}
+            <article class="goal-block">
+                <div class="goal-block-wrapper">
+                    <div class="importance-marker marker-color{{cmt_goal.weight}}"></div>
+                    <h3 class="goal-title">{{ cmt_goal.name }}</h3>
+                    <button class="goal-show-description-btn">▼</button>
+                    <button class="goal-show-edit-form">•••</button>
+
+                    <div class="goal-description-block hidden">
+                        {% if cmt_goal.description %}
+                        <p class="goal-description">{{ cmt_goal.description }}</p>
+                        {% endif %}
+
+                        {% for sub_goal in cmt_goal.sub_goals %}
+                            <div class="sub-goal-block">
+                                <h4>— {{ sub_goal.name }}</h4>
+                            </div>
+                        {% endfor %}
+                    </div>
+                    <div class="goal-form-wrapper hidden">
+                        <form method="post" action="" id="manage-done-goal-form">
+                            {% csrf_token %}
+                            <button class="done-goal-btn" name="button" value="make_active">Сделать активной</button>
+                            <button class="delete-goal-btn" name="button" value="delete">Удалить</button>
+                            <input type="hidden" name="form_type" value="manage_goal_form">
+                            <input type="hidden" name="goal_id" value="{{ cmt_goal.id }}">
+                        </form>
+                    </div>
+                </div>
+            </article>
+        {% endfor %}
+    </section>
+
     <div class="checkbox-sub-goal-form-wrapper hidden">
         <form method="post" action="" id="checkbox-sub-goal-form">
             {% csrf_token %}
