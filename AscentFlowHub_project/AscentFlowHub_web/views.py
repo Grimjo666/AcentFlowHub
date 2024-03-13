@@ -255,7 +255,6 @@ class SphereOfLifePageView(View):
 
                 context['active_goals_list'] = active_goals_list
                 context['completed_goals_list'] = completed_goals_list
-                print(goals_response.json())
 
             else:
                 messages.error(request, goals_response.text)
@@ -266,8 +265,7 @@ class SphereOfLifePageView(View):
 
     def post(self, request, category_name):
         form_type = request.POST.get('form_type')
-        # Узнаём на какую кнопку нажал пользователь
-        button = request.POST.get('button')
+
         try:
             # Обработка формы добавления новой цели
             if form_type == 'new_goal_from':
@@ -286,29 +284,49 @@ class SphereOfLifePageView(View):
 
             # Обработка формы выполнения\изменения\удаления цели
             elif form_type == 'manage_goal_form':
+                self.button_processing_process(request)
 
-                if button == 'done':
-                    self.switch_goal_process(request)
-                    messages.success(request, 'Цель выполнена')
-
-                elif button == 'edit':
-                    pass
-
-                elif button == 'make_active':
-                    self.switch_goal_process(request, completed=False)
-                    messages.success(request, 'Цель снова активна')
-
-                elif button == 'delete':
-                    self.delete_goal_process(request)
-                    messages.success(request, 'Цель удалена')
-
-                else:
-                    messages.warning(request, 'Не зарегистрированная кнопка')
+            elif form_type == 'checkbox_form':
+                checkbox_list = request.POST.getlist('checkbox')
+                # Проходим по списку и достаём ID цели
+                if checkbox_list:
+                    for goal_id in checkbox_list:
+                        # Вызываем процесс обработки кнопок
+                        self.button_processing_process(request, int(goal_id))
 
         except Exception as e:
             messages.error(request, e)
 
         return redirect('sphere_of_life_page_path', category_name=category_name)
+
+    def button_processing_process(self, request, goal_id=None):
+        """
+        Обработчик нажатия кнопок из присылаемой от клиента формы
+        :param request:
+        :param goal_id: ID текущей цели, для которой нужно выполнить действие, по умолчанию берётся из request
+        :return:
+        """
+
+        # Узнаём на какую кнопку нажал пользователь
+        button = request.POST.get('button')
+
+        if button == 'done':
+            self.switch_goal_process(request, goal_id=goal_id)
+            messages.success(request, 'Цель выполнена')
+
+        elif button == 'edit':
+            pass
+
+        elif button == 'make_active':
+            self.switch_goal_process(request, completed=False, goal_id=goal_id)
+            messages.success(request, 'Цель снова активна')
+
+        elif button == 'delete':
+            self.delete_goal_process(request, goal_id)
+            messages.success(request, 'Цель удалена')
+
+        else:
+            messages.warning(request, 'Не зарегистрированная кнопка')
 
     @staticmethod
     def create_new_goal_process(request, goal_form, category_name, parent_id=None):
@@ -340,8 +358,9 @@ class SphereOfLifePageView(View):
         return tree_goal_response
 
     @staticmethod
-    def delete_goal_process(request):
-        goal_id = request.POST.get('goal_id')
+    def delete_goal_process(request, goal_id=None):
+        if not goal_id:
+            goal_id = request.POST.get('goal_id')
 
         if goal_id:
             api_tree_goals_requests = TreeGoalsAPI(request)
@@ -351,14 +370,17 @@ class SphereOfLifePageView(View):
             raise Exception('Отсутствует goal_id')
 
     @staticmethod
-    def switch_goal_process(request, completed=True):
+    def switch_goal_process(request, completed=True, goal_id=None):
         """
         Обработчик переключения цели (выполнена / активна)
         :param request:
         :param completed: по умолчанию True (делает цель завершённой)
+        :param goal_id: ID цели
         :return: API response
         """
-        goal_id = request.POST.get('goal_id')
+
+        if not goal_id:
+            goal_id = request.POST.get('goal_id')
 
         if goal_id:
             api_tree_goals_requests = TreeGoalsAPI(request)
