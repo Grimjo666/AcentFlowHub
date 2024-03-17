@@ -7,7 +7,7 @@ from slugify import slugify
 class LifeCategoryModel(models.Model):
     name = models.CharField(max_length=25, null=False)
     slug_name = models.SlugField(max_length=25, default='', blank=True)
-    percent = models.IntegerField(default=0)
+    percent = models.DecimalField(max_digits=5, decimal_places=1)
     first_color = models.CharField(max_length=20, blank=True)
     second_color = models.CharField(max_length=20, blank=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
