@@ -239,17 +239,23 @@ class SphereOfLifePageView(View):
             'new_goal_form': new_goal_form,
         }
 
-        life_category_response = api_life_category_requests.get_category_by_user_and_name(user_id=request.user.id,
-                                                                                          category_name=category_name)
+        life_category_response = api_life_category_requests.get_category_by_slug_name(slug_name=category_name)
+
         if life_category_response.ok:
-            context['current_life_category'] = life_category_response.json()
+            context['current_life_category'] = life_category_response.json()[0]
 
             # Получаем id текущей категории
-            life_category_id = life_category_response.json().get('id')
+            life_category_id = life_category_response.json()[0].get('id')
 
-            goals_response = api_tree_goals_requests.get_goals(life_category_id=life_category_id)
+            goals_response = api_tree_goals_requests.get_goals(life_category=life_category_id, sub_goals=True)
+
             if goals_response.ok:
-                context['goals_list'] = goals_response.json()
+                # Фильтруем разбиваем данные на два массива (активные цели и завершённые)
+                active_goals_list = filter(lambda goal: goal['completed'] is False, goals_response.json())
+                completed_goals_list = filter(lambda goal: goal['completed'] is True, goals_response.json())
+
+                context['active_goals_list'] = active_goals_list
+                context['completed_goals_list'] = completed_goals_list
 
             else:
                 messages.error(request, goals_response.text)
@@ -260,7 +266,10 @@ class SphereOfLifePageView(View):
 
     def post(self, request, category_name):
         form_type = request.POST.get('form_type')
+
         try:
+            self.update_life_category_percent(request, slug_name=category_name)
+
             # Обработка формы добавления новой цели
             if form_type == 'new_goal_from':
                 goal_form = forms.TreeGoalsForm(request.POST)
@@ -268,7 +277,6 @@ class SphereOfLifePageView(View):
                 if goal_form.is_valid():
                     # Получаем parent_id из скрытого поля формы
                     parent_id = request.POST.get('parent_id')
-
                     # Если parent_id пустое, то мы добавляем основную цель, если нет, то подцель
                     if parent_id == '':
                         parent_id = None
@@ -277,28 +285,69 @@ class SphereOfLifePageView(View):
                     messages.success(request, 'Цель добавлена')
 
             # Обработка формы выполнения\изменения\удаления цели
-            elif form_type == 'goal_management_form':
-                # Узнаём на какую кнопку нажал пользователь
-                button = request.POST.get('button')
+            elif form_type == 'manage_goal_form':
+                self.button_processing_process(request)
 
-                if button == 'done':
-                    self.done_goal_process(request)
-                    messages.success(request, 'Цель выполнена')
-
-                elif button == 'edit':
-                    pass
-
-                elif button == 'delete':
-                    self.delete_goal_process(request)
-                    messages.success(request, 'Цель удалена')
-
-                else:
-                    messages.warning(request, 'Не зарегистрированная кнопка')
+            elif form_type == 'checkbox_form':
+                checkbox_list = request.POST.getlist('checkbox')
+                # Проходим по списку и достаём ID цели
+                if checkbox_list:
+                    for goal_id in checkbox_list:
+                        # Вызываем процесс обработки кнопок
+                        self.button_processing_process(request, int(goal_id))
 
         except Exception as e:
-            messages.error(request, e)
+            messages.error(request, f'Ошибка при обработке формы: {form_type} - {e}')
 
         return redirect('sphere_of_life_page_path', category_name=category_name)
+
+    def button_processing_process(self, request, goal_id=None):
+        """
+        Обработчик нажатия кнопок из присылаемой от клиента формы
+        :param request:
+        :param goal_id: ID текущей цели, для которой нужно выполнить действие, по умолчанию берётся из request
+        :return:
+        """
+
+        # Узнаём на какую кнопку нажал пользователь
+        button = request.POST.get('button')
+
+        if button == 'done':
+            self.switch_goal_process(request, goal_id=goal_id)
+            messages.success(request, 'Цель выполнена')
+
+        elif button == 'edit':
+            pass
+
+        elif button == 'make_active':
+            self.switch_goal_process(request, completed=False, goal_id=goal_id)
+            messages.success(request, 'Цель снова активна')
+
+        elif button == 'delete':
+            self.delete_goal_process(request, goal_id)
+            messages.success(request, 'Цель удалена')
+
+        else:
+            messages.warning(request, 'Не зарегистрированная кнопка')
+
+    @staticmethod
+    def update_life_category_percent(request, slug_name):
+        """
+        Обновляем информацию о проценте выполнения в модели LifeCategoryModel
+        :param request:
+        :param slug_name:
+        :return:
+        """
+        api_life_category_requests = LifeCategoryAPI(request)
+        api_tree_goals_requests = TreeGoalsAPI(request)
+
+        life_category_response = api_life_category_requests.get_category_by_slug_name(slug_name=slug_name)
+        life_category_id = life_category_response.json()[0].get('id')
+
+        # Получаем текущий процент выполнения
+        percent = api_tree_goals_requests.calculate_completion_percentage(life_category_id)
+        # Делаем запрос на обновление данных
+        api_life_category_requests.partially_update(pk=life_category_id, data={'percent': percent})
 
     @staticmethod
     def create_new_goal_process(request, goal_form, category_name, parent_id=None):
@@ -310,14 +359,12 @@ class SphereOfLifePageView(View):
         api_tree_goals_requests = TreeGoalsAPI(request)
 
         # Получаем текущую категорию
-        life_category_response = api_life_category_requests.get_category_by_user_and_name(
-            user_id=request.user.id, category_name=category_name
-        )
+        life_category_response = api_life_category_requests.get_category_by_slug_name(slug_name=category_name)
 
         if not life_category_response.ok:
             raise UserApiError('Ошибка во время создания цели')
 
-        life_category_id = life_category_response.json().get('id')
+        life_category_id = life_category_response.json()[0].get('id')
 
         tree_goal_response = api_tree_goals_requests.create_data({
             'name': name,
@@ -330,8 +377,9 @@ class SphereOfLifePageView(View):
         return tree_goal_response
 
     @staticmethod
-    def delete_goal_process(request):
-        goal_id = request.POST.get('goal_id')
+    def delete_goal_process(request, goal_id=None):
+        if not goal_id:
+            goal_id = request.POST.get('goal_id')
 
         if goal_id:
             api_tree_goals_requests = TreeGoalsAPI(request)
@@ -341,12 +389,21 @@ class SphereOfLifePageView(View):
             raise Exception('Отсутствует goal_id')
 
     @staticmethod
-    def done_goal_process(request):
-        goal_id = request.POST.get('goal_id')
+    def switch_goal_process(request, completed=True, goal_id=None):
+        """
+        Обработчик переключения цели (выполнена / активна)
+        :param request:
+        :param completed: по умолчанию True (делает цель завершённой)
+        :param goal_id: ID цели
+        :return: API response
+        """
+
+        if not goal_id:
+            goal_id = request.POST.get('goal_id')
 
         if goal_id:
             api_tree_goals_requests = TreeGoalsAPI(request)
-            api_response = api_tree_goals_requests.partially_update(goal_id, data={'completed': True})
+            api_response = api_tree_goals_requests.partially_update(goal_id, data={'completed': completed})
             return api_response
         else:
             raise Exception('Отсутствует goal_id')
@@ -359,7 +416,11 @@ class SubGoalPageView(View):
         api_tree_goals_requests = TreeGoalsAPI(request)
         api_response = api_tree_goals_requests.get_goal_by_id(sub_goal_id, sub_goals=True)
 
-        context = {}
+        new_goal_form = forms.TreeGoalsForm()
+
+        context = {
+            'new_goal_form': new_goal_form,
+        }
 
         if api_response.ok:
             context['goal'] = api_response.json()[0]

@@ -10,7 +10,7 @@
 {% endblock %}
 
 {% block js_scripts %}
-  <script src="{% static 'AscentFlowHub_web/js/sub_goal_page.js' %}"></script>
+  <script src="{% static 'AscentFlowHub_web/js/sphere_of_life.js' %}"></script>
 {% endblock %}
 
 {% block content %}
@@ -28,14 +28,16 @@
             {% if goal.description %}
             <p class="goal-description">{{ goal.description }}</p>
             {% endif %}
-            <button class="add-sub-goal-btn">Добавить промежуточную цель</button>
+            <button class="add-sub-goal-btn" data-goal-id="{{ goal.id }}">Добавить промежуточную цель</button>
 
             {% for sub_goal in goal.sub_goals %}
 
                 <div class="sub-goal-block">
                     <h4>
                         <div class="checkbox-container">
-                            <input type="checkbox" id="goal-checkbox-{{ sub_goal.id }}" name="checkbox" value="{{ sub_goal.id }}" form="">
+                            <input type="checkbox" id="goal-checkbox-{{ sub_goal.id }}"
+                                   name="checkbox" value="{{ sub_goal.id }}"
+                                   form="checkbox-sub-goal-form">
                             <label for="goal-checkbox-{{ sub_goal.id }}"></label>
                         </div>
                         <a href="{% url 'sub_goal_page_path' sub_goal.id %}">— {{ sub_goal.name }}</a>
@@ -54,4 +56,14 @@
         <input type="hidden" name="form_type" value="checkbox_form">
     </form>
 </div>
+{% endblock %}
+
+{% block modal_window %}
+    <form action="" method="post" id="create-new-goal-form">
+        {% csrf_token %}
+        {{ new_goal_form.as_p }}
+        <input type="hidden" name="form_type" value="new_goal_from">
+        <input type="hidden" name="parent_id" value="" id="parent_id_input">
+        <button type="submit">Добавить</button>
+    </form>
 {% endblock %}

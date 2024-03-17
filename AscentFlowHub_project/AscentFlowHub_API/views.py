@@ -7,49 +7,71 @@ from rest_framework.response import Response
 from AscentFlowHub_API import serializers, models
 
 
-class LifeCategoryViewSet(viewsets.ModelViewSet):
+class CustomFilterMixin:
+    @staticmethod
+    def get_filtered_request_params(request, model: object) -> dict:
+        filtered_params = dict()
+        if not request.query_params:
+            return filtered_params
+
+        # Получаем поля модели
+        model_fields = [field.name for field in model._meta.fields]
+        many_to_many_fields = [field.name for field in model._meta.many_to_many]
+        model_fields.extend(many_to_many_fields)
+
+        # Получаем параметры запроса и фильтруем их на основе model_fields
+        query_params = request.query_params
+        filtered_params = dict(filter(lambda param: param[0] in model_fields, query_params.items()))
+
+        # Возвращаем отфильтрованный словарь параметров
+        return filtered_params
+
+
+class LifeCategoryViewSet(viewsets.ModelViewSet, CustomFilterMixin):
     serializer_class = serializers.LifeCategorySerializer
+    model = models.LifeCategoryModel
 
     def get_queryset(self):
-        return models.LifeCategoryModel.objects.filter(user=self.request.user)
+        filtered_params = self.get_filtered_request_params(self.request, self.model)
 
-    def list(self, request, *args, **kwargs):
-        user_id = request.query_params.get('user_id')
-        category_name = request.query_params.get('category_name')
-
-        if not user_id and not category_name:
-            return super().list(request, *args, **kwargs)
-
-        elif not user_id or not category_name:
-            return Response({'error': 'Поля user_id и category_name являются обязательными'}, status=400)
-
-        else:
-
-            # Извлекаем объект из базы данных
-            try:
-                category_data = models.LifeCategoryModel.objects.get(user=user_id, slug_name=category_name)
-            except models.LifeCategoryModel.DoesNotExist:
-                return Response({'error': 'Категория не найдена'}, status=404)
-
-            serializer = self.serializer_class(category_data)
-            return Response(serializer.data)
+        queryset = self.model.objects.filter(user=self.request.user, **filtered_params)
+        return queryset
 
 
-class TreeGoalsViewSet(viewsets.ModelViewSet):
+class TreeGoalsViewSet(viewsets.ModelViewSet, CustomFilterMixin):
     serializer_class = serializers.TreeGoalsSerializer
+    model = models.TreeGoalsModel
 
     def get_queryset(self):
-        return models.TreeGoalsModel.objects.filter(user=self.request.user)
+        filtered_params = self.get_filtered_request_params(self.request, self.model)
 
-    @action(methods=['get'], detail=False, url_path='get-goals-sub-goals/(?P<life_category_id>[^/.]+)')
-    def get_all_goals_with_sub_goals(self, request, life_category_id):
+        parent = filtered_params.get('parent')
 
+        # Если parent = 0 то удаляем его для того что бы можно было получить записи с любым значением parent
+        if parent == '0':
+            del filtered_params['parent']
+        elif parent and parent.lower() == 'none':
+            filtered_params['parent'] = None
+
+        queryset = self.model.objects.filter(user=self.request.user, **filtered_params)
+        return queryset
+
+    @action(methods=['get'], detail=False, url_path='with-sub-goals')
+    def get_goals_with_sub_goals_list(self, request):
+        """
+        Получаем список целей с подцелями
+        :param request:
+        :return:
+        """
         try:
-            parent_id = request.query_params.get('parent_id')
+            filtered_params = self.get_filtered_request_params(request, models.TreeGoalsModel)
 
-            goals_data = models.TreeGoalsModel.objects.filter(user=self.request.user,
-                                                              parent=parent_id,
-                                                              life_category=life_category_id)
+            if not filtered_params.get('parent'):
+                filtered_params['parent'] = None
+            elif filtered_params.get('parent') == '0':
+                del filtered_params['parent']
+
+            goals_data = self.model.objects.filter(user=self.request.user, **filtered_params)
 
             serialized_data = self.add_sub_goals_in_serialized_data(goals_data)
 
@@ -58,7 +80,11 @@ class TreeGoalsViewSet(viewsets.ModelViewSet):
             return Response(str(e), status=404)
 
     def add_sub_goals_in_serialized_data(self, goals_data):
-
+        """
+        Сериализуем и добавляем подцель к сериализованным данным цели
+        :param goals_data:
+        :return:
+        """
         if isinstance(goals_data, models.TreeGoalsModel):
             goals_data = [goals_data]
 
@@ -75,18 +101,20 @@ class TreeGoalsViewSet(viewsets.ModelViewSet):
             goal['sub_goals'] = sub_goal_dict[goal_id]
         return serialized_data
 
-    @action(methods=['get'], detail=True, url_path='get-goal-sub-goals')
-    def get_one_goal_with_sub_goals(self, request, pk=None):
+    @action(methods=['get'], detail=True, url_path='with-sub-goals')
+    def get_with_sub_goals_detail(self, request, pk=None):
+        """
+        Получаем конкретную цель с данными о подцелях
+        :param request:
+        :param pk: id цели
+        :return:
+        """
         try:
             goal_data = models.TreeGoalsModel.objects.get(id=pk)
-
             serialized_data = self.add_sub_goals_in_serialized_data(goal_data)
 
             return Response(serialized_data)
 
         except Exception as e:
             return Response(str(e), status=404)
-
-
-
 
