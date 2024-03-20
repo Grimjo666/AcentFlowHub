@@ -69,7 +69,7 @@
 }
 
 .marker-color1 {
-    background-color: #ed1a41;
+    background-color: #ccc8c9;
 }
 
 .marker-color2 {
@@ -77,7 +77,7 @@
 }
 
 .marker-color3 {
-    background-color: #ccc8c9;
+    background-color: #ed1a41;
 }
 
 .goal-show-edit-form {
@@ -113,6 +113,46 @@
 
 .goal-show-description-btn {
     padding: 5px 10px;
+    position: relative;
+}
+
+.goal-progress-branch {
+    position: absolute;
+    top: 43px;
+    left: 50%;
+    transform: translate(-50%);
+    display: flex;
+    flex-direction: line;
+    align-items: center;
+}
+
+.branch-circle {
+    border-radius: 50%;
+    border: solid 2px var(--second_bg_color);
+    height: 18px;
+    width: 18px;
+    box-sizing: border-box;
+}
+
+.circle-weight-3 {
+    height: 26px;
+    width: 26px;
+}
+
+.circle-weight-2 {
+    height: 21px;
+    width: 21px;
+}
+
+.circle-done-True {
+    background-color: var(--second_bg_color);
+}
+
+.branch-line {
+    background-color: var(--second_bg_color);
+    width: 10px;
+    height: 3px;
+    margin: 9px 0 9px 0;
 }
 
 .goal-description-block {

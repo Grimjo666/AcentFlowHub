@@ -59,7 +59,6 @@ class BaseAPI:
             response = rqt.get(api_endpoint, headers=self.user_headers, params=params)
         else:
             response = rqt.get(self._api_data_list_endpoint, headers=self.user_headers, params=params)
-            print(response, self._api_data_list_endpoint, '-----------------------')
 
         if not response.ok:
             response_message = response.json().get('detail')
@@ -199,7 +198,9 @@ class TreeGoalsAPI(BaseAPI):
             if subgoal['completed']:
                 total_subgoals_completion_percentage += subgoal['weight']
 
-        return (total_subgoals_completion_percentage / total_subgoals_weight) * parent_weight if total_subgoals_weight > 0 else 0
+        if total_subgoals_weight > 0:
+            return (total_subgoals_completion_percentage / total_subgoals_weight) * parent_weight
+        return 0
 
     def calculate_completion_percentage(self, life_category_id):
         """
@@ -219,8 +220,8 @@ class TreeGoalsAPI(BaseAPI):
 
                 if goal['completed']:
                     total_completion_percentage += goal_weight
-
-                total_completion_percentage += self.calculate_subgoals_completion_percentage(goal['sub_goals'],
+                else:
+                    total_completion_percentage += self.calculate_subgoals_completion_percentage(goal['sub_goals'],
                                                                                              goal_weight)
 
         result = 0

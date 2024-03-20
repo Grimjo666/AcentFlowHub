@@ -22,9 +22,9 @@ class LifeCategoryModel(models.Model):
 
 class TreeGoalsModel(models.Model):
     WEIGHT_CHOICES = [
-        (1, 'Высокое'),
+        (3, 'Высокое'),
         (2, 'Среднее'),
-        (3, 'Низкое')
+        (1, 'Низкое')
     ]
 
     name = models.CharField(max_length=45, null=False)
@@ -35,6 +35,7 @@ class TreeGoalsModel(models.Model):
     description = models.CharField(max_length=250, blank=True, null=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     completed = models.BooleanField(default=False)
+    creation_date = models.DateTimeField(auto_now_add=True)
 
     def save(self, *args, **kwargs):
         slug_name = slugify(self.name)

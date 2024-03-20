@@ -45,7 +45,6 @@ class LogoutView(View, HttpResponseMixin):
 
         except Exception as e:
 
-            print(f"Error during logout: {str(e)}")
             messages.error(request, 'Произошла ошибка при выходе из системы')
             return redirect('index_page_path')
 
@@ -105,7 +104,7 @@ class LoginPageView(View, HttpResponseMixin):
             messages.error(request, f'Network error: {str(e)}')
 
         except Exception as e:
-            print(str(e))
+            messages.error(request, str(e))
 
         return self.get(request)
 
@@ -221,8 +220,7 @@ class MyProgressPageView(View):
             return redirect('my_progress_page_path')
 
         except Exception as e:
-            messages.error(request, 'Произошла непредвиденная ошибка')
-            print(e)
+            messages.error(request, f'Произошла непредвиденная ошибка: {e}')
             return redirect('index_page_path')
 
 
@@ -268,8 +266,6 @@ class SphereOfLifePageView(View):
         form_type = request.POST.get('form_type')
 
         try:
-            self.update_life_category_percent(request, slug_name=category_name)
-
             # Обработка формы добавления новой цели
             if form_type == 'new_goal_from':
                 goal_form = forms.TreeGoalsForm(request.POST)
@@ -295,6 +291,9 @@ class SphereOfLifePageView(View):
                     for goal_id in checkbox_list:
                         # Вызываем процесс обработки кнопок
                         self.button_processing_process(request, int(goal_id))
+
+            # Обновляем процент выполненных целей пользователя
+            self.update_life_category_percent(request, slug_name=category_name)
 
         except Exception as e:
             messages.error(request, f'Ошибка при обработке формы: {form_type} - {e}')

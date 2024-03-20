@@ -47,13 +47,13 @@ class TreeGoalsViewSet(viewsets.ModelViewSet, CustomFilterMixin):
 
         parent = filtered_params.get('parent')
 
-        # Если parent = 0 то удаляем его для того что бы можно было получить записи с любым значением parent
+        # Если parent = 0, то удаляем его для того что бы можно было получить записи с любым значением parent
         if parent == '0':
             del filtered_params['parent']
         elif parent and parent.lower() == 'none':
             filtered_params['parent'] = None
 
-        queryset = self.model.objects.filter(user=self.request.user, **filtered_params)
+        queryset = self.model.objects.filter(user=self.request.user, **filtered_params).order_by('creation_date')
         return queryset
 
     @action(methods=['get'], detail=False, url_path='with-sub-goals')
@@ -71,7 +71,7 @@ class TreeGoalsViewSet(viewsets.ModelViewSet, CustomFilterMixin):
             elif filtered_params.get('parent') == '0':
                 del filtered_params['parent']
 
-            goals_data = self.model.objects.filter(user=self.request.user, **filtered_params)
+            goals_data = self.model.objects.filter(user=self.request.user, **filtered_params).order_by('creation_date')
 
             serialized_data = self.add_sub_goals_in_serialized_data(goals_data)
 
@@ -91,7 +91,7 @@ class TreeGoalsViewSet(viewsets.ModelViewSet, CustomFilterMixin):
         # Проходимся по queryset и создаём словарь с id цели = сериализованые данные подцелей это цели
         sub_goal_dict = {}
         for goal in goals_data:
-            sub_goal_dict[goal.id] = self.serializer_class(goal.children.all(), many=True).data
+            sub_goal_dict[goal.id] = self.serializer_class(goal.children.order_by('creation_date'), many=True).data
 
         # Сериализуем queryset целей и добавляем в него данные о подцелях
         serialized_data = self.serializer_class(goals_data, many=True).data
@@ -102,7 +102,7 @@ class TreeGoalsViewSet(viewsets.ModelViewSet, CustomFilterMixin):
         return serialized_data
 
     @action(methods=['get'], detail=True, url_path='with-sub-goals')
-    def get_with_sub_goals_detail(self, request, pk=None):
+    def get_goals_with_sub_goals_detail(self, request, pk=None):
         """
         Получаем конкретную цель с данными о подцелях
         :param request:
