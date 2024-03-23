@@ -47,10 +47,7 @@ class TreeGoalsViewSet(viewsets.ModelViewSet, CustomFilterMixin):
 
         parent = filtered_params.get('parent')
 
-        # Если parent = 0, то удаляем его для того что бы можно было получить записи с любым значением parent
-        if parent == '0':
-            del filtered_params['parent']
-        elif parent and parent.lower() == 'none':
+        if parent and parent.lower() in ('none', 'null'):
             filtered_params['parent'] = None
 
         queryset = self.model.objects.filter(user=self.request.user, **filtered_params).order_by('creation_date')
@@ -65,11 +62,10 @@ class TreeGoalsViewSet(viewsets.ModelViewSet, CustomFilterMixin):
         """
         try:
             filtered_params = self.get_filtered_request_params(request, models.TreeGoalsModel)
+            parent = filtered_params.get('parent')
 
-            if not filtered_params.get('parent'):
+            if parent and parent.lower() in ('none', 'null'):
                 filtered_params['parent'] = None
-            elif filtered_params.get('parent') == '0':
-                del filtered_params['parent']
 
             goals_data = self.model.objects.filter(user=self.request.user, **filtered_params).order_by('creation_date')
 
@@ -118,3 +114,8 @@ class TreeGoalsViewSet(viewsets.ModelViewSet, CustomFilterMixin):
         except Exception as e:
             return Response(str(e), status=404)
 
+    @action(methods=['patch', 'put'], detail=False)
+    def update_goals(self, request):
+        print(request.data)
+        goal_data = models.TreeGoalsModel.objects.update()
+        return Response({'xnj': 1})

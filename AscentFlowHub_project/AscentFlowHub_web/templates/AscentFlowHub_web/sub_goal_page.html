@@ -1,5 +1,6 @@
 {% extends 'AscentFlowHub_web/base.html' %}
 {% load static %}
+{% load goal_tags %}
 
 {% block header %}
   {% include 'includes/header.html' %}
@@ -10,7 +11,7 @@
 {% endblock %}
 
 {% block js_scripts %}
-  <script src="{% static 'AscentFlowHub_web/js/sphere_of_life.js' %}"></script>
+  <script src="{% static 'AscentFlowHub_web/js/sub_goal_page.js' %}"></script>
 {% endblock %}
 
 {% block content %}
@@ -20,9 +21,14 @@
         <h3 class="goal-title">{{ goal.name }}</h3>
         <form method="post" action="" id="goal-form">
             {% csrf_token %}
-            <button title="В архив" class="done-goal-btn" name="button" value="done">Выполнено</button>
-            <button title="В архив" class="edit-goal-btn" name="button" value="edit">Изменить</button>
-            <button title="Удалить" class="delete-goal-btn" name="button" value="delete">Удалить</button>
+            {% if goal.completed %}
+                <button class="done-goal-btn" name="button" value="make_active">Сделать активной</button>
+            {% else %}
+                <button class="done-goal-btn" name="button" value="done">Выполнено</button>
+                <button class="edit-goal-btn" name="button" value="edit">Изменить</button>
+            {% endif %}
+            <button class="delete-goal-btn" name="button" value="delete">Удалить</button>
+            <input type="hidden" name="form_type" value="manage_goal_form">
         </form>
         <div class="goal-description-block">
             {% if goal.description %}
@@ -31,7 +37,6 @@
             <button class="add-sub-goal-btn" data-goal-id="{{ goal.id }}">Добавить промежуточную цель</button>
 
             {% for sub_goal in goal.sub_goals %}
-
                 <div class="sub-goal-block">
                     <h4>
                         <div class="checkbox-container">
@@ -40,8 +45,10 @@
                                    form="checkbox-sub-goal-form">
                             <label for="goal-checkbox-{{ sub_goal.id }}"></label>
                         </div>
-                        <a href="{% url 'sub_goal_page_path' sub_goal.id %}">— {{ sub_goal.name }}</a>
+                        <a href="{% url 'sub_goal_page_path' sub_goal.id %}"
+                           class="{% if sub_goal.completed %}strikethrough_text{% endif %}">— {{ sub_goal.name }}</a>
                     </h4>
+                    {% draw_goal_branch '' sub_goal.id request %}
                 </div>
             {% endfor %}
         </div>
@@ -51,7 +58,8 @@
     <form method="post" action="" id="checkbox-sub-goal-form">
         {% csrf_token %}
         <button title="В архив" class="done-sub-goal-btn" name="button" value="done">Выполнено</button>
-        <button class="edit-sub-goal-btn" name="button" value="done">Изменить</button>
+        <button name="button" value="make_active">Сделать активной</button>
+        <button class="edit-sub-goal-btn" name="button" value="edit">Изменить</button>
         <button title="Удалить" class="delete-sub-goal-btn" name="button" value="delete">Удалить</button>
         <input type="hidden" name="form_type" value="checkbox_form">
     </form>

@@ -9,6 +9,6 @@ if (notification) {
   // Задаем таймаут (в миллисекундах) для автоматического исчезновения
   setTimeout(function() {
     notification.style.display = "none";
-  }, 3000);
+  }, 7000);
 }
 });

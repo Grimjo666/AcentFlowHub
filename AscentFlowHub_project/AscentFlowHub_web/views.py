@@ -237,7 +237,7 @@ class SphereOfLifePageView(View):
             'new_goal_form': new_goal_form,
         }
 
-        life_category_response = api_life_category_requests.get_category_by_slug_name(slug_name=category_name)
+        life_category_response = api_life_category_requests.get_life_category_by_slug_name(slug_name=category_name)
 
         if life_category_response.ok:
             context['current_life_category'] = life_category_response.json()[0]
@@ -268,29 +268,14 @@ class SphereOfLifePageView(View):
         try:
             # Обработка формы добавления новой цели
             if form_type == 'new_goal_from':
-                goal_form = forms.TreeGoalsForm(request.POST)
-
-                if goal_form.is_valid():
-                    # Получаем parent_id из скрытого поля формы
-                    parent_id = request.POST.get('parent_id')
-                    # Если parent_id пустое, то мы добавляем основную цель, если нет, то подцель
-                    if parent_id == '':
-                        parent_id = None
-
-                    self.create_new_goal_process(request, goal_form, category_name, parent_id)
-                    messages.success(request, 'Цель добавлена')
+                self.new_goal_form_handler(request, category_name)
 
             # Обработка формы выполнения\изменения\удаления цели
             elif form_type == 'manage_goal_form':
                 self.button_processing_process(request)
 
             elif form_type == 'checkbox_form':
-                checkbox_list = request.POST.getlist('checkbox')
-                # Проходим по списку и достаём ID цели
-                if checkbox_list:
-                    for goal_id in checkbox_list:
-                        # Вызываем процесс обработки кнопок
-                        self.button_processing_process(request, int(goal_id))
+                self.checkbox_form_handler(request)
 
             # Обновляем процент выполненных целей пользователя
             self.update_life_category_percent(request, slug_name=category_name)
@@ -299,6 +284,27 @@ class SphereOfLifePageView(View):
             messages.error(request, f'Ошибка при обработке формы: {form_type} - {e}')
 
         return redirect('sphere_of_life_page_path', category_name=category_name)
+
+    def checkbox_form_handler(self, request):
+        checkbox_list = request.POST.getlist('checkbox')
+        # Проходим по списку и достаём ID цели
+        if checkbox_list:
+            for goal_id in checkbox_list:
+                # Вызываем процесс обработки кнопок
+                self.button_processing_process(request, int(goal_id))
+
+    def new_goal_form_handler(self, request, category_name=None, life_category_id=None):
+        goal_form = forms.TreeGoalsForm(request.POST)
+
+        if goal_form.is_valid():
+            # Получаем parent_id из скрытого поля формы
+            parent_id = request.POST.get('parent_id')
+            # Если parent_id пустое, то мы добавляем основную цель, если нет, то подцель
+            if parent_id == '':
+                parent_id = None
+
+            self.create_new_goal_process(request, goal_form, category_name, parent_id, life_category_id)
+            messages.success(request, 'Цель добавлена')
 
     def button_processing_process(self, request, goal_id=None):
         """
@@ -330,18 +336,19 @@ class SphereOfLifePageView(View):
             messages.warning(request, 'Не зарегистрированная кнопка')
 
     @staticmethod
-    def update_life_category_percent(request, slug_name):
+    def update_life_category_percent(request, slug_name=None, life_category_id=None):
         """
         Обновляем информацию о проценте выполнения в модели LifeCategoryModel
+        :param life_category_id: ID категории сфер жизни
         :param request:
         :param slug_name:
         :return:
         """
         api_life_category_requests = LifeCategoryAPI(request)
         api_tree_goals_requests = TreeGoalsAPI(request)
-
-        life_category_response = api_life_category_requests.get_category_by_slug_name(slug_name=slug_name)
-        life_category_id = life_category_response.json()[0].get('id')
+        if not life_category_id:
+            life_category_response = api_life_category_requests.get_life_category_by_slug_name(slug_name=slug_name)
+            life_category_id = life_category_response.json()[0].get('id')
 
         # Получаем текущий процент выполнения
         percent = api_tree_goals_requests.calculate_completion_percentage(life_category_id)
@@ -349,7 +356,7 @@ class SphereOfLifePageView(View):
         api_life_category_requests.partially_update(pk=life_category_id, data={'percent': percent})
 
     @staticmethod
-    def create_new_goal_process(request, goal_form, category_name, parent_id=None):
+    def create_new_goal_process(request, goal_form, category_name=None, parent_id=None, life_category_id=None):
         name = goal_form.cleaned_data['name']
         weight = goal_form.cleaned_data['weight']
         description = goal_form.cleaned_data['description']
@@ -357,13 +364,14 @@ class SphereOfLifePageView(View):
         api_life_category_requests = LifeCategoryAPI(request)
         api_tree_goals_requests = TreeGoalsAPI(request)
 
-        # Получаем текущую категорию
-        life_category_response = api_life_category_requests.get_category_by_slug_name(slug_name=category_name)
+        if not life_category_id:
+            # Получаем текущую категорию
+            life_category_response = api_life_category_requests.get_life_category_by_slug_name(slug_name=category_name)
 
-        if not life_category_response.ok:
-            raise UserApiError('Ошибка во время создания цели')
+            if not life_category_response.ok:
+                raise UserApiError('Ошибка во время создания цели')
 
-        life_category_id = life_category_response.json()[0].get('id')
+            life_category_id = life_category_response.json()[0].get('id')
 
         tree_goal_response = api_tree_goals_requests.create_data({
             'name': name,
@@ -423,9 +431,34 @@ class SubGoalPageView(View):
 
         if api_response.ok:
             context['goal'] = api_response.json()[0]
-            print(api_response.json())
         else:
             messages.error(request, api_response.text)
 
         return render(request, self.template_name, context=context)
 
+    def post(self, request, sub_goal_id):
+        form_type = request.POST.get('form_type')
+        sphere_of_life_view = SphereOfLifePageView()
+        api_tree_goal_requests = TreeGoalsAPI(request)
+        try:
+            # Получаем id категории сфер жизни
+            api_goal_response = api_tree_goal_requests.get_goal_by_id(goal_id=sub_goal_id)
+            life_category_id = api_goal_response.json().get('life_category')[0]
+
+            if form_type == 'manage_goal_form':
+                sphere_of_life_view.button_processing_process(request, sub_goal_id)
+
+            elif form_type == 'new_goal_from':
+                sphere_of_life_view.new_goal_form_handler(request, life_category_id=life_category_id)
+
+            elif form_type == 'checkbox_form':
+                sphere_of_life_view.checkbox_form_handler(request)
+
+            # Обновляем процент выполненных целей пользователя
+            sphere_of_life_view.update_life_category_percent(request, life_category_id=life_category_id)
+
+        except Exception as e:
+            messages.error(request, f'Ошибка при обработке формы: {form_type} - {e}')
+
+        url = reverse('sub_goal_page_path', kwargs={'sub_goal_id': sub_goal_id})
+        return redirect(url)

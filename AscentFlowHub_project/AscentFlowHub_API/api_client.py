@@ -73,6 +73,7 @@ class BaseAPI:
         :return: API response
         """
         response = rqt.post(self._api_data_list_endpoint, headers=self.user_headers, data=data)
+        print(response.text)
 
         if not response.ok:
             response_message = response.json().get('detail')
@@ -117,7 +118,7 @@ class LifeCategoryAPI(BaseAPI):
     list_url_pattern = 'life_category_path-list'  # Url шаблон для получения queryset Модели LifeCategoryModel
     detail_url_pattern = 'life_category_path-detail'  # Url шаблон для получения конкретной записи LifeCategoryModel
 
-    def get_category_by_slug_name(self, slug_name):
+    def get_life_category_by_slug_name(self, slug_name):
         """
         Получаем запись по user_id и category_name
         :param slug_name: является полем slug_name из LifeCategoryModel
@@ -168,16 +169,33 @@ class TreeGoalsAPI(BaseAPI):
         :return: API response
         """
 
+        # Добавляем значение parent в формате str в словарь параметров запроса
+        params['parent'] = str(parent)
+
         if sub_goals:
             api_endpoint = self._domain + reverse('tree_goals_path-get-goals-with-sub-goals-list')
         else:
             return self.get_list_data(params=params)
 
-        if parent:
-            params['parent_id'] = parent
-
         response = rqt.get(api_endpoint, headers=self.user_headers, params=params)
         return response
+
+    def get_sub_goals(self, goal_id):
+        """
+        Получаем список подцелей с помощью id цели
+        :param goal_id: ID цели
+        :return: list(sub_goal,) or None
+        """
+        url_pattern = 'tree_goals_path-get-goals-with-sub-goals-detail'
+        api_endpoint = self._domain + reverse(url_pattern, kwargs={'pk': goal_id})
+
+        api_response = rqt.get(api_endpoint, headers=self.user_headers)
+        goal_data = api_response.json()
+
+        sub_goals_list = goal_data[0].get('sub_goals')
+
+        if sub_goals_list:
+            return sub_goals_list
 
     def get_goal_by_id(self, goal_id, sub_goals=False):
         url_pattern = self.detail_url_pattern

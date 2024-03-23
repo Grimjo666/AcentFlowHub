@@ -155,6 +155,12 @@
     margin: 9px 0 9px 0;
 }
 
+.sub-goal-progress-branch {
+    display: flex;
+    flex-direction: line;
+    align-items: center;
+}
+
 .goal-description-block {
     background-color: var(--background_color);
     border-radius: 10px;
