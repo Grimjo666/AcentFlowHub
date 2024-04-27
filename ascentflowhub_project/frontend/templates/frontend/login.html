@@ -1,0 +1,18 @@
+{% extends 'frontend/base.html' %}
+{% load static %}
+
+{% block css_style %}
+    <link rel="stylesheet" href="{% static 'frontend/css/login.css' %}">
+{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <h2>Вход</h2>
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+        <button type="submit">Войти</button>
+    </form>
+        <p>Нет аккаунта? <a href="{% url 'registration_page_path' %}">Зарегистрироваться</a></p>
+    </div>
+{% endblock %}

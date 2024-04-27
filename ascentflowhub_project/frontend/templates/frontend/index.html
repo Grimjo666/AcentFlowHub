@@ -1,0 +1,34 @@
+{% extends 'frontend/base.html' %}
+{% load static %}
+{% block css_style %}
+    <link rel="stylesheet" href="{% static 'frontend/css/index.css' %}">
+{% endblock %}
+{% block header %}
+  {% include 'includes/header.html' %}
+{% endblock %}
+{% block content %}
+  <div class="main-title-block">
+    <h1 class="main-title">Добро пожаловать на AscentFlowHub</h1>
+    <p class="main-title-text">Общайтесь, ставьте цели, растите</p>
+  </div>
+  <section class="features">
+    <div class="feature">
+      <h2>Создавайте цели</h2>
+      <p>Ставьте и отслеживайте свои личные и профессиональные цели.</p>
+    </div>
+    <div class="feature">
+      <h2>Общайтесь с другими</h2>
+      <p>Присоединяйтесь к поддерживающему сообществу и делитесь своими результатами.</p>
+    </div>
+    <div class="feature">
+      <h2>Отслеживайте прогресс</h2>
+      <p>Следите за своим прогрессом и отмечайте достижения.</p>
+    </div>
+  </section>
+
+{% endblock %}
+{% block footer %}
+  <footer>
+    <p>&copy; 2024 AscentFlowHub.</p>
+  </footer>
+{% endblock %}

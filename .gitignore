@@ -1,7 +1,7 @@
 __pycache__/
 *.pyc
 venv
-AscentFlowHub_project/AscentFlowHub_web/static/AscentFlowHub_web/css/test_page.css
-AscentFlowHub_project/AscentFlowHub_web/static/AscentFlowHub_web/js/test_page.js
-AscentFlowHub_project/AscentFlowHub_web/templates/AscentFlowHub_web/test_page.html
+ascentflowhub_project/frontend/static/frontend/css/test_page.css
+ascentflowhub_project/frontend/static/frontend/js/test_page.js
+ascentflowhub_project/frontend/templates/frontend/test_page.html
 
