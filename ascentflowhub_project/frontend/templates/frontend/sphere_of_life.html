@@ -19,7 +19,7 @@
     <div class="progress-scale">
         <div class="progress-scale-color" style="background: linear-gradient(to left,
      {{ current_life_category.first_color }}, {{ current_life_category.second_color }});
-      height: 100%; width: {{ current_life_category.percent }}%"></div>
+      height: 100%; width: {{ current_life_category.percent|floatformat:'u' }}%"></div>
         <div class="progress-scale-text-wrapper">
             <span class="progress-scale-title">{{ current_life_category.name }}</span>
             <span class="progress-scale-percent">{{ current_life_category.percent }}%</span>
@@ -38,7 +38,7 @@
                     <div class="importance-marker marker-color{{goal.weight}}"></div>
                     <h3 class="goal-title">{{ goal.name }}</h3>
                     <button class="goal-show-description-btn">▼</button>
-                    {% draw_goal_branch goal.sub_goals %}
+                    {% draw_goal_branch user goal.sub_goals %}
                     <button class="goal-show-edit-form">•••</button>
 
                     <div class="goal-description-block hidden">
@@ -59,7 +59,7 @@
                                     <a href="{% url 'sub_goal_page_path' sub_goal.id %}"
                                        class="{% if sub_goal.completed %}strikethrough_text{% endif %}">— {{ sub_goal.name }}</a>
                                 </h4>
-                                {% draw_goal_branch '' sub_goal.id request %}
+                                {% draw_goal_branch user '' sub_goal.id %}
                             </div>
                         {% endfor %}
                     </div>

@@ -32,11 +32,12 @@
     {% if life_category_list %}
     {% for category in life_category_list %}
       <article class="progress-circle">
+
         <a href="{{ category.slug_name }}">
           <button class="button-delete-circle hidden" type="submit" form="edit-categories-form"
                   name="delete_category" value="{{ category.id }}">x</button>
           <div class="progress-circle-wrapper">
-            <div class="inner-circle" style="height: {{ category.percent }}%; background: linear-gradient(to bottom,
+            <div class="inner-circle" style="height: {{ category.percent|floatformat:'u'  }}%; background: linear-gradient(to bottom,
              {{ category.first_color }}, {{ category.second_color }});"></div>
             <div class="progres-info-wrapper">
               <span class="percent">{{ category.percent }}%</span>

@@ -147,15 +147,6 @@ class LifeCategoryAPI(BaseAPI):
 
         return self.create_data(data=data)
 
-    def create_base_life_categories(self):
-        """
-        Создаём базовые сферы жизни на основе BASE_LIFE_CATEGORY_DATA
-        :return: None
-        """
-        for category_data in BASE_LIFE_CATEGORY_DATA:
-            data = {'user': self.user_id, **category_data}
-            self.create_life_category(data=data)
-
 
 class TreeGoalsAPI(BaseAPI):
     list_url_pattern = 'tree_goals_path-list'

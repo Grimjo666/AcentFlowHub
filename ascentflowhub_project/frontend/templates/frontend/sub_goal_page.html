@@ -48,7 +48,7 @@
                         <a href="{% url 'sub_goal_page_path' sub_goal.id %}"
                            class="{% if sub_goal.completed %}strikethrough_text{% endif %}">— {{ sub_goal.name }}</a>
                     </h4>
-                    {% draw_goal_branch '' sub_goal.id request %}
+                    {% draw_goal_branch user '' sub_goal.id %}
                 </div>
             {% endfor %}
         </div>
