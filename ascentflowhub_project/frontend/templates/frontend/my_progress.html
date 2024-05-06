@@ -20,7 +20,7 @@
     <div class="edit-categories-menu">
       <button class="show-edit-categories-menu">&#8226&#8226&#8226</button>
       <div class="edit-categories-form-wrapper hidden">
-        <form action="{% url 'my_progress_page_path' %}" method="post" id="edit-categories-form">
+        <form action="{% url 'my_progress_page' %}" method="post" id="edit-categories-form">
           {% csrf_token %}
           <input type="hidden" name="form_type" value="edit_categories_form">
           <button class="edit-categories-button" type="button" id="add-category-btn">Добавить сферу</button>
@@ -56,7 +56,7 @@
 {% block modal_window %}
   {% if not life_category_list %}
     <p class="modal-window-text">У ввс отсутствуют сферы жизни, хотите создать их в ручную или выбрать готовый шаблон?</p>
-    <form action="{% url 'my_progress_page_path' %}" method="post" id="create-base-category-form">
+    <form action="{% url 'my_progress_page' %}" method="post" id="create-base-category-form">
       {% csrf_token %}
       <input type="hidden" name="form_type" value="create_base_category_form">
       <button class="button-create-category" type="submit" name="button" value="create">Использовать готовые</button>
@@ -64,7 +64,7 @@
     </form>
   {% else %}
     <div id="form-container">
-      <form action="{% url 'my_progress_page_path' %}" method="post" id="create-new-category-form">
+      <form action="{% url 'my_progress_page' %}" method="post" id="create-new-category-form">
         {% csrf_token %}
         {{ life_category_form.as_p }}
         <input type="hidden" name="form_type" value="create_new_category_form">

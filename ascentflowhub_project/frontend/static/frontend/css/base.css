@@ -110,6 +110,10 @@ button:hover {
     color: var(--accent_color);
 }
 
+.previous-page-btn {
+    position: absolute
+}
+
 .messages {
     position: fixed;
     bottom: 15px;

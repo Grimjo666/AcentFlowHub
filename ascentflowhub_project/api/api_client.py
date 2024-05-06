@@ -3,8 +3,6 @@ import requests as rqt
 from django.conf import settings
 from django.urls import reverse
 
-from constants.base_life_category_data import BASE_LIFE_CATEGORY_DATA
-
 
 class UserApiError(Exception):
     def __init__(self, message):

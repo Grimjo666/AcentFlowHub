@@ -11,7 +11,7 @@ from .mixins import HttpResponseMixin
 from .models import UserTraining
 from api.models import LifeCategory, TreeGoals
 from api.api_client import UserApiError, TreeGoalsAPI
-from constants.base_life_category_data import BASE_LIFE_CATEGORY_DATA
+from ascentflowhub_project.constants import BASE_LIFE_CATEGORY_DATA
 
 
 def page_not_found(request):
@@ -38,10 +38,10 @@ class LogoutView(View, HttpResponseMixin):
         except Exception as e:
 
             messages.error(request, f'Произошла ошибка при выходе из системы: {e}')
-            return redirect('index_page_path')
+            return redirect('index_page')
 
         else:
-            return redirect('index_page_path')
+            return redirect('index_page')
 
 
 class LoginPageView(View, HttpResponseMixin):
@@ -69,7 +69,7 @@ class LoginPageView(View, HttpResponseMixin):
             if user is not None:
                 login(request, user)
 
-                return redirect('index_page_path')
+                return redirect('index_page')
 
         return self.get(request, context={'form': form})
 
@@ -96,7 +96,7 @@ def registration_page(request):
 
         except Exception as e:
             messages.error(request, str(e))
-            return redirect('index_page_path')
+            return redirect('index_page')
     else:
         form = forms.RegistrationForm()
     return render(request, 'frontend/registration.html', context={'form': form})
@@ -128,7 +128,7 @@ class MyProgressPageView(View):
 
         except Exception as e:
             messages.error(request, str(e))
-            return redirect('index_page_path')
+            return redirect('index_page')
 
     def post(self, request):
         try:
@@ -159,11 +159,11 @@ class MyProgressPageView(View):
 
                     messages.success(request, 'Сфера жизни добавлена')
 
-            return redirect('my_progress_page_path')
+            return redirect('my_progress_page')
 
         except Exception as e:
             messages.error(request, f'Произошла непредвиденная ошибка: {e}')
-            return redirect('my_progress_page_path')
+            return redirect('my_progress_page')
 
     @staticmethod
     def create_base_life_categories(user):
@@ -231,7 +231,7 @@ class SphereOfLifePageView(View):
         except Exception as e:
             messages.error(request, f'Ошибка при обработке формы: {form_type} - {e}')
 
-        return redirect('sphere_of_life_page_path', category_name=category_name)
+        return redirect('sphere_of_life_page', category_name=category_name)
 
     def checkbox_form_handler(self, request):
         checkbox_list = request.POST.getlist('checkbox')
@@ -403,8 +403,10 @@ class SubGoalPageView(View):
     template_name = 'frontend/sub_goal_page.html'
 
     def get(self, request, sub_goal_id):
+
         try:
             current_goal = TreeGoals.objects.filter(id=sub_goal_id)[0]
+            life_category_slug_name = current_goal.life_category.all()[0].slug_name
 
             # Добавляем кверисет с подцелями
             current_goal.sub_goals = current_goal.children.all()
@@ -413,6 +415,7 @@ class SubGoalPageView(View):
 
             context = {
                 'new_goal_form': new_goal_form,
+                'life_category': life_category_slug_name
             }
 
             if current_goal:
@@ -423,7 +426,7 @@ class SubGoalPageView(View):
             return render(request, self.template_name, context=context)
 
         except IndexError as ie:
-            return redirect('my_progress_page_path')
+            return redirect('my_progress_page')
 
     def post(self, request, sub_goal_id):
         form_type = request.POST.get('form_type')
@@ -448,5 +451,5 @@ class SubGoalPageView(View):
         except Exception as e:
             messages.error(request, f'Ошибка при обработке формы: {form_type} - {e}')
 
-        url = reverse('sub_goal_page_path', kwargs={'sub_goal_id': sub_goal_id})
+        url = reverse('sub_goal_page', kwargs={'sub_goal_id': sub_goal_id})
         return redirect(url)

@@ -16,6 +16,7 @@
 
 {% block content %}
 <div class="goal-block">
+    <a href="{% url 'sphere_of_life_page' life_category %}"><button class="previous-page-btn">←</button></a>
     <div class="goal-block-wrapper">
         <div class="importance-marker marker-color{{goal.weight}}"></div>
         <h3 class="goal-title">{{ goal.name }}</h3>
@@ -45,7 +46,7 @@
                                    form="checkbox-sub-goal-form">
                             <label for="goal-checkbox-{{ sub_goal.id }}"></label>
                         </div>
-                        <a href="{% url 'sub_goal_page_path' sub_goal.id %}"
+                        <a href="{% url 'sub_goal_page' sub_goal.id %}"
                            class="{% if sub_goal.completed %}strikethrough_text{% endif %}">— {{ sub_goal.name }}</a>
                     </h4>
                     {% draw_goal_branch user '' sub_goal.id %}

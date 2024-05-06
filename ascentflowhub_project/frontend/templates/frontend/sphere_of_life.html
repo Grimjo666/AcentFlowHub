@@ -26,6 +26,7 @@
         </div>
     </div>
     <section class="active-goal-wrapper">
+        <a href="{% url 'my_progress_page' %}"><button class="previous-page-btn">←</button></a>
 
         <div class="add-goal-block">
             <button title="Добавить цель" class="add-goal-btn">+</button>
@@ -56,7 +57,7 @@
                                                form="checkbox-sub-goal-form">
                                         <label for="goal-checkbox-{{ sub_goal.id }}"></label>
                                     </div>
-                                    <a href="{% url 'sub_goal_page_path' sub_goal.id %}"
+                                    <a href="{% url 'sub_goal_page' sub_goal.id %}"
                                        class="{% if sub_goal.completed %}strikethrough_text{% endif %}">— {{ sub_goal.name }}</a>
                                 </h4>
                                 {% draw_goal_branch user '' sub_goal.id %}
