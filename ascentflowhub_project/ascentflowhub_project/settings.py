@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -60,10 +61,10 @@ WSGI_APPLICATION = 'ascentflowhub_project.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'ascentflowhub',
-        'USER': 'postgres',
-        'PASSWORD': 'gera1234',
-        'HOST': 'localhost',
+        'NAME': os.environ.get("PG_DB_NAME", 'ascentflowhub'),
+        'USER': os.environ.get("PG_USER", 'postgres'),
+        'PASSWORD': os.environ.get("PG_PASSWORD", 'gera1234'),
+        'HOST': os.environ.get("PG_HOST", 'localhost'),
         'PORT': '5432',
     }
 }
