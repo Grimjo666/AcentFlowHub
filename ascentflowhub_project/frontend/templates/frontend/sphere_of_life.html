@@ -26,7 +26,18 @@
         </div>
     </div>
     <section class="active-goal-wrapper">
-        <a href="{% url 'my_progress_page' %}"><button class="previous-page-btn">←</button></a>
+        <div class="settings-bar">
+            <a href="{% url 'my_progress_page' %}"><button class="previous-page-btn">←</button></a>
+            <form method="post" action="" id="site-settings-form">
+                {% csrf_token %}
+                {% if hide_subgoals %}
+                    <button class="show-subgoals-btn" name="button" value="show_subgoals">Показать подцели</button>
+                {% else %}
+                    <button class="hide-subgoals-btn" name="button" value="hide_subgoals">Скрыть подцели</button>
+                {% endif %}
+                <input type="hidden" name="form_type" value="site_settings_form">
+            </form>
+        </div>
 
         <div class="add-goal-block">
             <button title="Добавить цель" class="add-goal-btn">+</button>
@@ -42,7 +53,7 @@
                     {% draw_goal_branch user goal.sub_goals %}
                     <button class="goal-show-edit-form">•••</button>
 
-                    <div class="goal-description-block hidden">
+                    <div class="goal-description-block {% if hide_subgoals %} hidden {% endif %}">
                         {% if goal.description %}
                         <p class="goal-description">{{ goal.description }}</p>
                         {% endif %}

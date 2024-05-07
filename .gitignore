@@ -1,6 +1,7 @@
 __pycache__/
 *.pyc
 venv
+schemas/
 ascentflowhub_project/frontend/static/frontend/css/test_page.css
 ascentflowhub_project/frontend/static/frontend/js/test_page.js
 ascentflowhub_project/frontend/templates/frontend/test_page.html

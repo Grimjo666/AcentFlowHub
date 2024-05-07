@@ -8,7 +8,7 @@ from django.contrib.auth.models import User
 
 from frontend import forms
 from .mixins import HttpResponseMixin
-from .models import UserTraining
+from .models import UserTraining, UserSettings
 from api.models import LifeCategory, TreeGoals
 from api.api_client import UserApiError, TreeGoalsAPI
 from ascentflowhub_project.constants import BASE_LIFE_CATEGORY_DATA
@@ -180,10 +180,14 @@ class SphereOfLifePageView(View):
 
     def get(self, request, category_name):
 
+        site_settings = request.session['user_site_settings']
+        hide_subgoals = site_settings['hide_subgoals']
+
         new_goal_form = forms.TreeGoalsForm()
 
         context = {
             'new_goal_form': new_goal_form,
+            'hide_subgoals': hide_subgoals
         }
 
         life_category = LifeCategory.objects.filter(slug_name=category_name, user=request.user)[0]
@@ -217,6 +221,14 @@ class SphereOfLifePageView(View):
             # Обработка формы добавления новой цели
             if form_type == 'new_goal_from':
                 self.new_goal_form_handler(request, category_name)
+
+            elif form_type == 'site_settings_form':
+                button = request.POST.get('button')
+
+                bool_value = False
+                if button == 'hide_subgoals':
+                    bool_value = True
+                UserSettings.objects.filter(user=request.user).update(hide_subgoals=bool_value)
 
             # Обработка формы выполнения\изменения\удаления цели
             elif form_type == 'manage_goal_form':

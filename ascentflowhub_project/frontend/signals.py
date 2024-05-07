@@ -14,7 +14,7 @@ def filling_user_training_model(sender, instance, created, **kwargs):
         user_training = UserTraining(user=instance).save()
 
 
-@receiver(request_finished)
-def writing_user_training_data_to_session(sender, **kwargs):
-    print(kwargs)
-    print(sender)
+# @receiver(request_finished)
+# def writing_user_training_data_to_session(sender, **kwargs):
+#     print(kwargs)
+#     print(sender)
