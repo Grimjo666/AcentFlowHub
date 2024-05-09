@@ -1,8 +1,16 @@
-# def set_previous_url_page(request):
-#
-#     url = request.session.get('previous_page')
-#     request.session['previous_page'] = request.build_absolute_uri()
-#
-#     return {
-#         'previous_page_url': url
-#     }
+from .models import UserProfilePhoto
+from django.contrib.auth.models import User
+
+
+def get_user_profile_photo(request):
+    user = request.user
+    photo = None
+
+    if user.is_authenticated:
+        photo = UserProfilePhoto.objects.filter(user=user, main_photo=True)
+        if photo.exists():
+            photo = photo.latest('main_photo').photo
+
+    return {
+        'user_profile_photo': photo
+    }

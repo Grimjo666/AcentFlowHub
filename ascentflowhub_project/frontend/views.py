@@ -8,7 +8,7 @@ from django.contrib.auth.models import User
 
 from frontend import forms
 from .mixins import HttpResponseMixin
-from .models import UserTraining, UserSettings
+from .models import UserTraining, UserSettings, UserProfilePhoto
 from api.models import LifeCategory, TreeGoals
 from api.api_client import UserApiError, TreeGoalsAPI
 from ascentflowhub_project.constants import BASE_LIFE_CATEGORY_DATA
@@ -465,3 +465,104 @@ class SubGoalPageView(View):
 
         url = reverse('sub_goal_page', kwargs={'sub_goal_id': sub_goal_id})
         return redirect(url)
+
+
+class UserProfileView(View):
+    template_name = 'frontend/profile/user_profile.html'
+
+    def get(self, request):
+
+        photo_form = forms.UploadUserPhotoForm()
+        info_form = forms.UserProfileInfoFrom(instance=request.user)
+        change_pass_form = forms.ChangeProfilePasswordFrom()
+
+        context = {
+            'photo_form': photo_form,
+            'info_form': info_form,
+            'change_pass_form': change_pass_form
+        }
+
+        return render(request, self.template_name, context=context)
+
+    def post(self, request):
+        upload_form = forms.UploadUserPhotoForm(request.POST, request.FILES)
+        info_form = forms.UserProfileInfoFrom(request.POST)
+        change_pass_form = forms.ChangeProfilePasswordFrom(request.POST)
+        form_button = request.POST.get('button')
+
+        if upload_form.is_valid():
+            self.process_upload_photo(request, upload_form)
+
+        elif info_form.is_valid() and form_button == 'change_info':
+            self.process_change_user_info(request, info_form)
+            messages.success(request, 'Изменено')
+
+        elif change_pass_form.is_valid():
+            self.process_change_user_password(request, change_pass_form)
+            messages.success(request, 'Пароль успешно изменён')
+            return redirect('user_profile')
+
+        context = {
+            'upload_form': upload_form,
+            'info_form': info_form,
+            'change_pass_form': change_pass_form,
+        }
+
+        return render(request, self.template_name, context=context)
+
+    @staticmethod
+    def process_upload_photo(request, form):
+        photo = form.cleaned_data['photo']
+
+        # Получаем старое фото и переключаем метку main_photo в False
+        old_main_photo = UserProfilePhoto.objects.filter(user=request.user, main_photo=True)
+        old_main_photo.update(main_photo=False)
+
+        # Создаём новое основное фото профиля
+        new_photo = UserProfilePhoto(photo=photo, user=request.user, main_photo=True)
+        new_photo.save()
+
+    @staticmethod
+    def process_change_user_info(request, form):
+        first_name = form.cleaned_data['first_name']
+        last_name = form.cleaned_data['last_name']
+        email = form.cleaned_data['email']
+
+        User.objects.filter(id=request.user.id).update(first_name=first_name, last_name=last_name, email=email)
+
+    @staticmethod
+    def process_change_user_password(request, form):
+        password = form.cleaned_data['password']
+        password_repeat = form.cleaned_data['password_repeat']
+        if password == password_repeat:
+            user = User.objects.get(id=request.user.id)
+            user.set_password(password)
+            user.save()
+            login(request, user)
+
+
+class ChangeProfilePhotoView(View):
+    def get(self, request):
+        user_photo_data = UserProfilePhoto.objects.filter(user=request.user)
+
+        contex = {'user_photos': user_photo_data}
+        return render(request, 'frontend/profile/choice_profile_photo.html', contex)
+
+    def post(self, request):
+        photo_id = request.POST.getlist('photo_id')
+        form_button = request.POST.get('button')
+
+        if photo_id:
+            if form_button == 'change_photo':
+                user_photo_data = UserProfilePhoto.objects.filter(user=request.user)
+                user_photo_data.update(main_photo=False)
+
+                user_photo = user_photo_data.filter(id=photo_id[-1])
+                user_photo.update(main_photo=True)
+
+            elif form_button == 'delete_photo':
+                for id in photo_id:
+                    UserProfilePhoto.objects.filter(user=request.user, id=id).delete()
+                return redirect('change_profile_photo')
+
+        return redirect('user_profile')

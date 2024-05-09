@@ -10,16 +10,21 @@
 
 {% if user.is_authenticated  %}
     <div class="user-block">
-          <div class="user-info" onclick="toggleUserMenu()">
-            {% if user_name %}
-            <p>{{ user_name|title }}</p>
+        <div class="user-info" onclick="toggleUserMenu()">
+            {% if user_profile_photo %}
+                <img src="{{ user_profile_photo.url }}" alt="">
+            {% else %}
+                <img src="{% static 'note_planner/image/user_logo.png' %}" alt="">
+            {% endif %}
+            {% if user.first_name %}
+            <p>{{ user.first_name }}</p>
             {% else %}
             <p>{{ user|title }}</p>
             {% endif %}
         </div>
         <div class="user-menu hidden">
             <ul>
-                <li><a href="">Профиль</a></li>
+                <li><a href="{% url 'user_profile' %}">Профиль</a></li>
                 <li><a href="">Настройки</a></li>
                 <li><a href="{% url 'logout_path' %}">Выйти</a></li>
             </ul>

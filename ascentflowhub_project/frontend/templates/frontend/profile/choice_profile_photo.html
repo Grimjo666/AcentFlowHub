@@ -1,0 +1,38 @@
+{% extends 'frontend/base.html' %}
+{% load static %}
+
+{% block title %}
+    <title>Профиль: Выбор фото</title>
+{% endblock %}
+
+{% block css_style %}
+<link rel="stylesheet" href="{% static 'frontend/css/profile/choice_photo.css' %}">
+{% endblock %}
+
+{% block js_scripts %}
+<script src="{% static 'frontend/js/profile/profile_choice_photo_checkboxes.js' %}"></script>
+{% endblock %}
+
+{% block content %}
+<h3>Выберите фото</h3>
+<div class="choice-photo-block">
+    {% for photo in user_photos %}
+
+    <div class="photo-item">
+        <div class="checkbox">
+            <input type="checkbox" name="photo_id" value="{{ photo.id }}" form="change-photo-form" id="checkbox-{{ photo.id }}">
+        </div>
+        <lable for="checkbox-{{ photo.id }}">
+            <img src="{{ photo.photo.url }}" alt="">
+        </lable>
+    </div>
+    {% endfor %}
+    <div class="form-block hidden">
+        <form id="change-photo-form" method="post" action="">
+            {% csrf_token %}
+            <button type="submit" class="change-photo" name="button" value="change_photo">Сменить текущее фото</button>
+            <button type="submit" class="delete-photo hidden" name="button" value="delete_photo">Удалить</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

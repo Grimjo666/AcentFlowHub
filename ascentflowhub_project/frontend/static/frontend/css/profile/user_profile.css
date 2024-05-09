@@ -1,0 +1,75 @@
+.change-user-block {
+    display: flex;
+    position: relative;
+}
+
+.user-photo {
+    width: 200px;
+    height: 200px;
+    background-color: var(--block_bg_color);
+    border-radius: 50%;
+    border: 2px solid var(--block_border_color);
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.user-photo-wrapper {
+    width: 95%;
+    height: 95%;
+    border-radius: 50%;
+    position: relative;
+}
+
+.user-photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+}
+
+.button-change-photo {
+    position: absolute;
+    bottom: 5px;
+    right: 5px;
+    border: 2px solid var(--block_border_color);
+}
+
+.update-or-remove-photo-block {
+    display: flex;
+    position: fixed;
+    top: 280px;
+    flex-direction: column;
+    width: 250px;
+    margin-top: auto;
+    background-color: var(--block_bg_color);
+    border-radius: 15px;
+    padding: 5px 0;
+    border: 2px solid var(--block_border_color);
+}
+
+.button-delete,
+.button-save,
+.button-update-to-old {
+    width: 100%;
+}
+
+.user-info-block {
+    margin-left: 60px;
+    padding: 10px;
+}
+
+.user-password-block {
+    margin-top: 40px;
+    margin-left: 265px;
+    padding: 10px;
+}
+
+.button-save-password {
+    margin-top: 5px;
+}
+
+.hidden {
+    display: none;
+}

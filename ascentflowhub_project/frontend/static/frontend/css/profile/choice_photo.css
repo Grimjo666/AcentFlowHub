@@ -1,0 +1,26 @@
+.choice-photo-block {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(20%, 1fr));
+    gap: 10px;
+    overflow-y: auto;
+}
+
+.choice-photo-block img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 6px;
+}
+
+.checkbox {
+    position: relative;
+    top: 25px;
+}
+
+.form-block {
+    position: fixed;
+    bottom: 15px;
+    background-color: var(--block_bg_color);
+    padding: 5px;
+    border-radius: 13px;
+}

@@ -20,14 +20,20 @@ class UserSiteSettingsMiddleware:
         :param request:
         :return:
         """
-        user_settings = UserSettings.objects.filter(user=request.user)
+        try:
+            if request.user.is_authenticated:
 
-        if not user_settings.exists():
-            UserSettings(user=request.user).save()
+                user_settings = UserSettings.objects.filter(user=request.user)
 
-        settings_dict = {
-            'hide_subgoals': user_settings[0].hide_subgoals
-        }
+                if not user_settings.exists():
+                    UserSettings(user=request.user).save()
 
-        request.session['user_site_settings'] = settings_dict
+                settings_dict = {
+                    'hide_subgoals': user_settings[0].hide_subgoals
+                }
+
+                request.session['user_site_settings'] = settings_dict
+
+        except Exception as e:
+            print(str(e))
 

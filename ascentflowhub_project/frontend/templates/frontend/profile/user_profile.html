@@ -1,0 +1,62 @@
+{% extends 'frontend/base.html' %}
+{% load static %}
+
+{% block title %}
+    <title>Профиль</title>
+{% endblock %}
+
+{% block css_style %}
+<link rel="stylesheet" href="{% static 'frontend/css/profile/user_profile.css' %}">
+{% endblock %}
+
+{% block js_scripts %}
+<script src="{% static 'frontend/js/profile/user_profile.js' %}"></script>
+<script src="{% static 'frontend/js/profile/show_password_checkbox.js' %}"></script>
+{% endblock %}
+
+{% block header %}
+  {% include 'includes/header.html' %}
+{% endblock %}
+
+{% block content %}
+    <h3>Ваш профиль</h3>
+    <div class="change-user-block">
+        <div class="user-photo">
+            <div class="user-photo-wrapper">
+                {% if user_profile_photo %}
+                <a href="{% url 'change_profile_photo' %}"><img src="{{ user_profile_photo.url }}"></a>
+                {% else %}
+                <img src="{% static 'frontend/image/user_logo.png' %}" alt="">
+                {% endif %}
+                <button type="button" class="button-change-photo">✐</button>
+            </div>
+
+        </div>
+        <div class="update-or-remove-photo-block hidden">
+            <form method="post" action="{% url 'user_profile' %}" enctype="multipart/form-data">
+                {% csrf_token %}
+                {{ photo_form }}
+                <button type="submit" class="button-save" name="button" value="save">Загрузить</button>
+            </form>
+            <a href="{% url 'change_profile_photo' %}"><button type="button" class="button-update-to-old">Фотографии</button></a>
+        </div>
+        <div class="user-info-block l-s-r">
+            <h4>Ваши данные</h4>
+            <form id="change-user-info-form" method="post">
+                {% csrf_token %}
+                {{ info_form.as_p }}
+                <button form="change-user-info-form" type="submit" name="button" value="change_info">Сохранить</button>
+            </form>
+        </div>
+    </div>
+    <div class="user-password-block l-s-r">
+        <h4>Сменить пароль</h4>
+        <form id="change-pass-form" method="post">
+            {% csrf_token %}
+            {{ change_pass_form.as_p }}
+            <lable>Показать пароль</lable>
+            <input type="checkbox" id="show-pass-checkbox"><br>
+            <button form="change-pass-form" type="submit" class="button-save-password">Сохранить</button>
+        </form>
+    </div>
+{% endblock %}
