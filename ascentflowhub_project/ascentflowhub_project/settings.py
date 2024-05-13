@@ -122,4 +122,4 @@ REST_FRAMEWORK = {
 MEDIA_ROOT = BASE_DIR / 'uploads'
 MEDIA_URL = '/user_content/'
 
-
+AUTH_USER_MODEL = 'api.ManualUser'

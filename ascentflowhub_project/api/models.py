@@ -1,12 +1,40 @@
 from django.db import models
-from django.contrib.auth.models import User
+from django.contrib.auth.models import AbstractUser, UserManager
+from django.apps import apps
 
 from slugify import slugify
 
 from frontend.signals import filling_user_training_model
 
 
-User.add_to_class('filling_user_training_model', filling_user_training_model)
+class ManualUserManager(UserManager):
+    def _create_user(self, email, password, username=None, **extra_fields):
+
+        email = self.normalize_email(email)
+
+        # GlobalUserModel = apps.get_model(
+        #     self.model._meta.app_label, self.model._meta.object_name
+        # )
+        #
+        # username = GlobalUserModel.normalize_username(username)
+        user = self.model(email=email, username=username, **extra_fields)
+
+        user.set_password(password)
+        user.save(using=self._db)
+        return user
+
+
+class ManualUser(AbstractUser):
+    username = models.CharField(max_length=150, blank=True)
+    email = models.EmailField(unique=True)
+
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = []
+
+    objects = ManualUserManager()
+
+
+ManualUser.add_to_class('filling_user_training_model', filling_user_training_model)
 
 
 class LifeCategory(models.Model):
@@ -15,7 +43,7 @@ class LifeCategory(models.Model):
     percent = models.DecimalField(max_digits=5, decimal_places=1, default=0)
     first_color = models.CharField(max_length=20, blank=True)
     second_color = models.CharField(max_length=20, blank=True)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(ManualUser, on_delete=models.CASCADE)
 
     def save(self, *args, **kwargs):
         self.slug_name = slugify(self.name)
@@ -38,7 +66,7 @@ class TreeGoals(models.Model):
     weight = models.IntegerField(choices=WEIGHT_CHOICES, default=1)
     parent = models.ForeignKey('self', null=True, blank=True, on_delete=models.CASCADE, related_name='children')
     description = models.CharField(max_length=250, blank=True, null=True)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(ManualUser, on_delete=models.CASCADE)
     completed = models.BooleanField(default=False)
     creation_date = models.DateTimeField(auto_now_add=True)
 

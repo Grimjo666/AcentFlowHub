@@ -1,6 +1,6 @@
 from django import forms
 from django.contrib.auth.forms import AuthenticationForm
-from django.contrib.auth.models import User
+from api.models import ManualUser
 from django.core.validators import FileExtensionValidator
 
 from api import models as api_models
@@ -15,8 +15,8 @@ class RegistrationForm(forms.Form):
 
 
 class UserAuthenticationForm(AuthenticationForm):
-    model = User
-    fields = ['username', 'password']
+    model = ManualUser
+    fields = ['email', 'password']
 
 
 class LifeCategoryForm(forms.ModelForm):
@@ -62,7 +62,7 @@ class UploadUserPhotoForm(forms.ModelForm):
 
 class UserProfileInfoFrom(forms.ModelForm):
     class Meta:
-        model = User
+        model = ManualUser
         fields = ['first_name', 'last_name', 'email']
         labels = {
             'first_name': 'Имя',
@@ -75,7 +75,7 @@ class ChangeProfilePasswordFrom(forms.ModelForm):
     password_repeat = forms.CharField(label='Повторите пароль', widget=forms.PasswordInput)
 
     class Meta:
-        model = User
+        model = ManualUser
         fields = ['password']
         labels = {
             'password': 'Пароль'

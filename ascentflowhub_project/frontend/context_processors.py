@@ -1,5 +1,4 @@
 from .models import UserProfilePhoto
-from django.contrib.auth.models import User
 
 
 def get_user_profile_photo(request):

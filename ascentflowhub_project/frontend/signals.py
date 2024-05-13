@@ -1,15 +1,11 @@
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from django.contrib.auth.models import User
-from django.core.signals import request_finished
-from rest_framework.authtoken.models import Token
-
-from .models import UserTraining
 
 
-@receiver(post_save, sender=User)
+@receiver(post_save, sender='api.ManualUser')
 def filling_user_training_model(sender, instance, created, **kwargs):
     if created:
+        from .models import UserTraining
         # Создаём экземпляр модели обучения пользователя
         user_training = UserTraining(user=instance).save()
 

@@ -4,7 +4,7 @@ from django.views import View
 from django.contrib import messages
 from django.urls import reverse
 from django.conf import settings
-from django.contrib.auth.models import User
+from api.models import ManualUser
 
 from frontend import forms
 from .mixins import HttpResponseMixin
@@ -85,7 +85,7 @@ def registration_page(request):
                 email = form.cleaned_data['email']
                 password = form.cleaned_data['password']
 
-                User.objects.create_user(username=username, password=password, email=email)
+                ManualUser.objects.create_user(username=username, password=password, email=email)
 
                 messages.success(request, 'Вы успешно зарегистрировались')
 
@@ -528,14 +528,14 @@ class UserProfileView(View):
         last_name = form.cleaned_data['last_name']
         email = form.cleaned_data['email']
 
-        User.objects.filter(id=request.user.id).update(first_name=first_name, last_name=last_name, email=email)
+        ManualUser.objects.filter(id=request.user.id).update(first_name=first_name, last_name=last_name, email=email)
 
     @staticmethod
     def process_change_user_password(request, form):
         password = form.cleaned_data['password']
         password_repeat = form.cleaned_data['password_repeat']
         if password == password_repeat:
-            user = User.objects.get(id=request.user.id)
+            user = ManualUser.objects.get(id=request.user.id)
             user.set_password(password)
             user.save()
             login(request, user)
