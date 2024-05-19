@@ -1,17 +1,23 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
 from django.views import View
 from django.contrib import messages
 from django.urls import reverse
 from django.conf import settings
-from api.models import ManualUser
+from django.core.mail import send_mail
+from django.contrib.auth.tokens import default_token_generator
+from django.utils.translation import gettext_lazy as _
+from django.core.cache import cache
 
 from frontend import forms
 from .mixins import HttpResponseMixin
 from .models import UserTraining, UserSettings, UserProfilePhoto
-from api.models import LifeCategory, TreeGoals
-from api.api_client import UserApiError, TreeGoalsAPI
-from ascentflowhub_project.constants import BASE_LIFE_CATEGORY_DATA
+from api.models import LifeCategory, TreeGoals, ManualUser
+from ascentflowhub_project import constants
+
+import string
+import uuid
+import secrets
 
 
 def page_not_found(request):
@@ -77,29 +83,62 @@ class LoginPageView(View, HttpResponseMixin):
 def registration_page(request):
 
     if request.method == 'POST':
-        try:
-            form = forms.RegistrationForm(request.POST)
+        form = forms.RegistrationForm(request.POST)
 
-            if form.is_valid():
-                username = form.cleaned_data['username']
-                email = form.cleaned_data['email']
-                password = form.cleaned_data['password']
+        if form.is_valid():
+            email = form.cleaned_data['email']
 
-                ManualUser.objects.create_user(username=username, password=password, email=email)
+            user, created = ManualUser.objects.get_or_create(email=email)
+            new_pass = None
 
-                messages.success(request, 'Вы успешно зарегистрировались')
+            if created:
+                alphabet = string.ascii_letters + string.digits
+                new_pass = ''.join(secrets.choice(alphabet) for i in range(8))
+                user.set_password(new_pass)
+                user.save(update_fields=["password", ])
 
-                return LoginPageView().post(request)
+            if new_pass or user.is_active is False:
+                token = default_token_generator.make_token(user)
+                redis_key = f'user_confirmation_{token}'
+                cache.set(redis_key, {'user_id': user.id}, timeout=constants.REDIS_TOKEN_TIME)
 
-            else:
-                raise ValueError('Форма: RegistrationForm не валидна')
+                confirm_link = request.build_absolute_uri(reverse('registration-confirm', kwargs={"token": token}))
 
-        except Exception as e:
-            messages.error(request, str(e))
-            return redirect('index_page')
+                message = _(f"follow this link %s \n"
+                            f"to confirm! \n" % confirm_link)
+                if new_pass:
+                    message += f"Your new password {new_pass} \n "
+
+                send_mail(
+                    subject=_("Please confirm your registration!"),
+                    message=message,
+                    from_email="ascent.flowhub@mail.ru",
+                    recipient_list=[user.email, ]
+                )
+
+            messages.success(request, 'Проверьте свою почту')
+
+            return LoginPageView().post(request)
+
+        else:
+            raise ValueError('Форма: RegistrationForm не валидна')
+
     else:
         form = forms.RegistrationForm()
     return render(request, 'frontend/registration.html', context={'form': form})
+
+
+def register_confirm(request, token):
+    redis_key = f'user_confirmation_{token}'
+    user_info = cache.get(redis_key) or {}
+
+    if user_id := user_info.get("user_id"):
+        user = get_object_or_404(ManualUser, id=user_id)
+        user.is_active = True
+        user.save(update_fields=["is_active"])
+        return redirect('login_page')
+    else:
+        return redirect('registration_page')
 
 
 class MyProgressPageView(View):
@@ -171,7 +210,7 @@ class MyProgressPageView(View):
         Создаём базовые сферы жизни на основе BASE_LIFE_CATEGORY_DATA
         :return: None
         """
-        for category_data in BASE_LIFE_CATEGORY_DATA:
+        for category_data in constants.BASE_LIFE_CATEGORY_DATA:
             LifeCategory(user=user, **category_data).save()
 
 
@@ -325,7 +364,7 @@ class SphereOfLifePageView(View):
             life_category = LifeCategory.objects.filter(user=request.user, slug_name=category_name)[0]
 
             if life_category is None:
-                raise UserApiError('Ошибка во время создания цели')
+                raise ValueError('Ошибка во время создания цели')
 
         tree_goal = TreeGoals(name=name,
                               weight=weight,

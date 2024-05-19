@@ -26,3 +26,6 @@ BASE_LIFE_CATEGORY_DATA = [
                 'second_color': '#ffdf2d'
             },
         ]
+
+
+REDIS_TOKEN_TIME = 300

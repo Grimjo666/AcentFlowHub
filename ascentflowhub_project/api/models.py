@@ -1,37 +1,64 @@
 from django.db import models
-from django.contrib.auth.models import AbstractUser, UserManager
-from django.apps import apps
+from django.contrib.auth.models import AbstractUser
+from django.utils.translation import gettext_lazy as _
+from django.contrib.auth.models import BaseUserManager
 
 from slugify import slugify
 
 from frontend.signals import filling_user_training_model
 
 
-class ManualUserManager(UserManager):
-    def _create_user(self, email, password, username=None, **extra_fields):
-
+class ManualUserManager(BaseUserManager):
+    def create_user(self, email, password=None, **extra_fields):
+        """
+        Create and return a regular user with an email and password.
+        """
+        if not email:
+            raise ValueError('The Email field must be set')
         email = self.normalize_email(email)
-
-        # GlobalUserModel = apps.get_model(
-        #     self.model._meta.app_label, self.model._meta.object_name
-        # )
-        #
-        # username = GlobalUserModel.normalize_username(username)
-        user = self.model(email=email, username=username, **extra_fields)
-
+        user = self.model(email=email, **extra_fields)
         user.set_password(password)
         user.save(using=self._db)
         return user
 
+    def create_superuser(self, email, password=None, **extra_fields):
+        """
+        Create and return a superuser with an email and password.
+        """
+        extra_fields.setdefault('is_staff', True)
+        extra_fields.setdefault('is_superuser', True)
+        extra_fields.setdefault('is_active', True)
+
+        if extra_fields.get('is_staff') is not True:
+            raise ValueError('Superuser must have is_staff=True.')
+        if extra_fields.get('is_superuser') is not True:
+            raise ValueError('Superuser must have is_superuser=True.')
+
+        return self.create_user(email, password, **extra_fields)
+
 
 class ManualUser(AbstractUser):
-    username = models.CharField(max_length=150, blank=True)
-    email = models.EmailField(unique=True)
+    username = models.CharField(
+        _("username"),
+        max_length=150,
+        help_text=_(
+            "Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only."
+        ),
+        validators=[AbstractUser.username_validator],
+        blank=True,
+        null=True
+    )
+    email = models.EmailField(_("email address"), unique=True)
+
+    is_active = models.BooleanField(
+        _('active'),
+        default=False
+    )
+
+    objects = ManualUserManager()
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
-
-    objects = ManualUserManager()
 
 
 ManualUser.add_to_class('filling_user_training_model', filling_user_training_model)

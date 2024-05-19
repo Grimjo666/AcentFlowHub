@@ -2,16 +2,22 @@ from django import forms
 from django.contrib.auth.forms import AuthenticationForm
 from api.models import ManualUser
 from django.core.validators import FileExtensionValidator
+from django.core.exceptions import ValidationError
 
 from api import models as api_models
 from .models import UserProfilePhoto
 
 
 class RegistrationForm(forms.Form):
-    username = forms.CharField(label='Имя пользователя', max_length=100, required=True)
-    email = forms.EmailField(label='Email')
-    password = forms.CharField(label='Пароль', widget=forms.PasswordInput, required=True)
-    confirm_password = forms.CharField(label='Подтверждение пароля', widget=forms.PasswordInput, required=True)
+    email = forms.EmailField(label='Email', max_length=150, required=True)
+    confirmation = forms.BooleanField(
+        label="I confirm the terms",
+        required=True
+    )
+
+    def clean_confirmation(self):
+        if self.cleaned_data['confirmation'] is not True:
+            raise ValidationError('You must confirm')
 
 
 class UserAuthenticationForm(AuthenticationForm):

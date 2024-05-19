@@ -123,3 +123,31 @@ MEDIA_ROOT = BASE_DIR / 'uploads'
 MEDIA_URL = '/user_content/'
 
 AUTH_USER_MODEL = 'api.ManualUser'
+
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.mail.ru'
+EMAIL_USE_SSL = True
+EMAIL_PORT = 465
+
+EMAIL_HOST_USER = 'ascent.flowhub@mail.ru'
+EMAIL_HOST_PASSWORD = 'GYbEZMiLr788vqrwAVyx'
+DEFAULT_FROM_EMAIL = 'ascent.flowhub@mail.ru'
+
+
+# CACHES = {
+#     'default': {
+#         'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+#         'LOCATION': 'unique-snowflake',
+#     }
+# }
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': 'redis://127.0.0.1:6379/1',
+        'OPTIONS': {
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+        }
+    }
+}
