@@ -579,6 +579,14 @@ class UserProfileView(View):
             user.save()
             login(request, user)
 
+            send_mail(
+                subject=_("The password has been changed"),
+                message=_(f'The password has been changed to:\n{password}\n'
+                          f'If you have not changed your password, please contact support'),
+                from_email="ascent.flowhub@mail.ru",
+                recipient_list=[user.email, ]
+            )
+
 
 class ChangeProfilePhotoView(View):
     def get(self, request):
